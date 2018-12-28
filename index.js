@@ -27,6 +27,8 @@ window.onload = function () {
     background2.src = "images/bg8.jpg"
     let background3 = new Image()
     background3.src = "images/bg5.jpg"
+    let finalBackgroud = new Image()
+    finalBackgroud.src = "images/bg3.jpg"
 
 
     let mortyHead = new Image()
@@ -195,6 +197,7 @@ window.onload = function () {
                     this.x = 300
                     this.y = 450
                     stopGame = true
+                    score1 = 0
                     return true
                 }
 
@@ -410,35 +413,44 @@ window.onload = function () {
     //O que faz a magia continuar
     function draw() {
         //Os niveis vão para aqui
-
+        level = 4
         if (level == 1) nivel1()
         else if (level == 2) nivel2()
+        else if (level == 3) nivel3()
+        else if (level == 4) ecraFinal()
 
         //-------------------------
 
         if (devil.morreu()) {
             // reset = true //Vai levar mais merdas, porque temos que dar a hipotese de tentar outra vez sem dar refresh
-            level = 1
+            // level = 1
         }
-
-        vidas()
-
-
 
         if (nivelPassado == true) {
             console.log('Passas te de nivel')
             nivelPassado = false
-            if (level < 4) level++
+            if (level <= 4) level++
             console.log('Nivel - ' + level)
-            for (let i = 0; i < 1; i++) {
+
+            let nBolas = 0
+            if (level == 1) nBolas = 1
+            else if (level == 2) nBolas = 4
+            else if (level == 3) nBolas = 1
+
+
+            for (let i = 0; i < nBolas; i++) {
                 bolas.push(new Bola())
             }
         }
 
-        ctx.fillStyle = 'white'
-        ctx.font = "20px Arial";
-        ctx.fillText(text, 20, 525)
-        ctx.fillText(score1, 55, 590)
+        if (level != 4) {
+            vidas()
+
+            ctx.fillStyle = 'white'
+            ctx.font = "20px Arial";
+            ctx.fillText(text, 20, 525)
+            ctx.fillText(score1, 55, 590)
+        }
 
         //O que faz a magia repetir se
         if (!stopGame) {
@@ -465,7 +477,12 @@ window.onload = function () {
                 }
             }
 
-            for (let i = 0; i < 1; i++) {
+            let nBolas = 0
+            if (level == 1) nBolas = 1
+            else if (level == 2) nBolas = 4
+            else if (level == 3) nBolas = 1
+
+            for (let i = 0; i < nBolas; i++) {
                 bolas.push(new Bola())
             }
             stopGame = false
@@ -473,7 +490,7 @@ window.onload = function () {
 
         nivelPassado = false
 
-        if (bolas.length == 0) {
+        if (bolas.length == 0 && level != 4) {
             console.log('ata')
             nivelPassado = true
         }
@@ -525,6 +542,34 @@ window.onload = function () {
             bola.colide()
         }
     }
+
+    function nivel3() {
+        ctx.fillStyle = 'green'
+        ctx.fillRect(0, 0, canvas.width, canvas.height)
+        ctx.drawImage(background3, 0, 0, background3.width, background3.height, 0, 0, canvas.width, 500)
+
+        for (let i = 0; i < setas.length; i++) {
+            setas[i].draw()
+            setas[i].arrowRise()
+            setas[i].max()
+        }
+
+        devil.up(5)
+        devil.down(-5)
+        devil.grav()
+        devil.update()
+        devil.show()
+
+
+    }
+    function ecraFinal() {
+        ctx.fillStyle = 'purple'
+        ctx.fillRect(0, 0, canvas.width, canvas.height)
+        ctx.drawImage(finalBackgroud, 0, 0, finalBackgroud.width, finalBackgroud.height, 0, 0, canvas.width, 500)
+
+        ctx.fillStyle = "blue"
+        ctx.fillRect(canvas.width/2, canvas.height/2, 100, 100)
+    }
     //Mostrar Vidas
     function vidas() {
         if (devil.lives >= 0) ctx.drawImage(mortyHead, 20, 535, 25, 25)
@@ -551,6 +596,12 @@ window.onload = function () {
         ctx.stroke()
     }
 
+    class Boss {
+        constructor() {
+            // this.x 
+        }
+
+    }
     let setas = [] //Array que vai guardar as setas
     //A seta
     class Seta {
