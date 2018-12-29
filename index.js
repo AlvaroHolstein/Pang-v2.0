@@ -575,11 +575,11 @@ window.onload = function () {
         }
         launchBalls() {
             this.count++
-            if (this.count >= 300 && this.number<=4) {
+            if (this.count >= 300 && this.number <= 4) {
                 this.count = 0
                 this.number++
                 console.log(this.number)
-                for (let i = 0; i <= 1;  i++) {
+                for (let i = 0; i <= 1; i++) {
                     this.lado *= -1
                     bolas.push(new Bola(this.x, this.y, 20, this.lado))
                 }
@@ -587,7 +587,26 @@ window.onload = function () {
             }
         }
 
+        hits() {
+            for (let i = 0; i < setas.length; i++) {
+                if (setas[i].x >= this.x && setas[i].x <= this.x + this.width
+                    &&
+                    setas[i].y >= this.y && setas[i].y <= this.y + this.height) {
+                    if (this.vidas >= 2) {
+                        setas.splice(i, 1)
+                        console.log(this.vidas)
+                        this.vidas--
+                    }
 
+                    if (bolas.length == 0 && this.number == 5) {
+                        setas.splice(i, 1)
+                        console.log(this.vidas)
+                        this.vidas--
+                    }
+                }
+            }
+            if(this.vidas == 0) return true;
+        }
     }
     let boss = new Boss(bighead.width, bighead.height)
 
@@ -619,6 +638,7 @@ window.onload = function () {
         boss.show()
         boss.update()
         boss.launchBalls()
+        boss.hits()
     }
     function ecraFinal() {
         ctx.fillStyle = 'purple'
