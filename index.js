@@ -26,7 +26,7 @@ window.onload = function () {
     let background2 = new Image()
     background2.src = "images/bg8.jpg"
     let background3 = new Image()
-    background3.src = "images/bg5.jpg"
+    background3.src = "images/bg5_noBigHead.jpg"
     let finalBackgroud = new Image()
     finalBackgroud.src = "images/bg3.jpg"
 
@@ -61,6 +61,9 @@ window.onload = function () {
 
     let plat = new Image()
     plat.src = "images/plat2.png"
+
+    let bighead = new Image()
+    bighead.src = "images/BigHead.png"
 
     //-------------------------------------------------------
     class Platform {
@@ -257,9 +260,11 @@ window.onload = function () {
         }
     }
 
+
     let devil = new Devil()
     let platform = new Platform()
     let escada = new Escada(100, 500, 30, 250)
+
 
     class Bola {
         constructor(x = Number(Math.random() * canvas.width), y = Number(Math.random() * 100), raio = 30, lado = 1, novabola = false) {
@@ -279,8 +284,8 @@ window.onload = function () {
         show() {
 
             ctx.fillStyle = ctx.createPattern(space, "repeat")
-            ctx.strokeStyle = "black"
-            ctx.lineWidth = "1"
+            ctx.strokeStyle = "green"
+            ctx.lineWidth = "5"
             ctx.save()
             ctx.beginPath()
             ctx.arc(this.x, this.y, this.raio, 0, 2 * Math.PI)
@@ -413,7 +418,7 @@ window.onload = function () {
     //O que faz a magia continuar
     function draw() {
         //Os niveis vão para aqui
-        level = 4
+        level = 3
         if (level == 1) nivel1()
         else if (level == 2) nivel2()
         else if (level == 3) nivel3()
@@ -441,6 +446,8 @@ window.onload = function () {
             for (let i = 0; i < nBolas; i++) {
                 bolas.push(new Bola())
             }
+
+            // nivelPassado = false;
         }
 
         if (level != 4) {
@@ -480,7 +487,7 @@ window.onload = function () {
             let nBolas = 0
             if (level == 1) nBolas = 1
             else if (level == 2) nBolas = 4
-            else if (level == 3) nBolas = 1
+            else if (level == 3) nBolas = 0
 
             for (let i = 0; i < nBolas; i++) {
                 bolas.push(new Bola())
@@ -490,7 +497,7 @@ window.onload = function () {
 
         nivelPassado = false
 
-        if (bolas.length == 0 && level != 4) {
+        if (bolas.length == 0 && level != 3) {
             console.log('ata')
             nivelPassado = true
         }
@@ -543,8 +550,49 @@ window.onload = function () {
         }
     }
 
+    class Boss {
+        constructor(w, h, l = 1) {
+            this.x = 50
+            this.y = 10
+            this.width = w * 0.2
+            this.height = h * 0.2
+            this.velx = 2
+            this.count = 0 //Vai determinar de quanto em quanto tempo lança bolas
+            this.number = 0
+            this.lado = l //determina o lado para que as bolas vão ser lançadas
+            this.vidas = 5 //A partir das duas devia fazer uma cena diferentes
+        }
+
+        show() {
+            ctx.drawImage(bighead, this.x, this.y, this.width, this.height)
+        }
+        update() {
+            this.x += this.velx
+
+            if (this.x <= 0 || this.x + this.width >= canvas.width) {
+                this.velx *= -1
+            }
+        }
+        launchBalls() {
+            this.count++
+            if (this.count >= 300 && this.number<=4) {
+                this.count = 0
+                this.number++
+                console.log(this.number)
+                for (let i = 0; i <= 1;  i++) {
+                    this.lado *= -1
+                    bolas.push(new Bola(this.x, this.y, 20, this.lado))
+                }
+
+            }
+        }
+
+
+    }
+    let boss = new Boss(bighead.width, bighead.height)
+
     function nivel3() {
-        ctx.fillStyle = 'green'
+        ctx.fillStyle = 'brown'
         ctx.fillRect(0, 0, canvas.width, canvas.height)
         ctx.drawImage(background3, 0, 0, background3.width, background3.height, 0, 0, canvas.width, 500)
 
@@ -554,13 +602,23 @@ window.onload = function () {
             setas[i].max()
         }
 
+
+
         devil.up(5)
         devil.down(-5)
         devil.grav()
         devil.update()
         devil.show()
 
+        for (let bola of bolas) {
+            bola.show()
+            bola.update()
+            bola.colide()
+        }
 
+        boss.show()
+        boss.update()
+        boss.launchBalls()
     }
     function ecraFinal() {
         ctx.fillStyle = 'purple'
@@ -568,7 +626,7 @@ window.onload = function () {
         ctx.drawImage(finalBackgroud, 0, 0, finalBackgroud.width, finalBackgroud.height, 0, 0, canvas.width, 500)
 
         ctx.fillStyle = "blue"
-        ctx.fillRect(canvas.width/2, canvas.height/2, 100, 100)
+        ctx.fillRect(canvas.width / 2, canvas.height / 2, 100, 100)
     }
     //Mostrar Vidas
     function vidas() {
@@ -596,12 +654,7 @@ window.onload = function () {
         ctx.stroke()
     }
 
-    class Boss {
-        constructor() {
-            // this.x 
-        }
 
-    }
     let setas = [] //Array que vai guardar as setas
     //A seta
     class Seta {
