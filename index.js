@@ -5,6 +5,42 @@ window.onload = function () {
     canvas.width = 1000
     canvas.height = 600
 
+    class Jogador {
+        constructor(nome, pontos, tempo) {
+            this.nome = nome
+            this.data = new Date().toISOString().split('T')[0]
+            this.pontos = pontos
+            this.tempo = tempo
+        }
+    }
+    let jogadores = []
+    let elBody = document.getElementById('elBody')
+
+    if (localStorage.getItem('jogs')) {
+        jogadores = JSON.parse(localStorage.getItem('jogs'))
+
+        for (let i = 0; i < jogadores.length; i++) {
+            let tr = document.createElement('tr')
+            let tdNome = document.createElement('td')
+            let tdScore = document.createElement('td')
+            let tdTempo = document.createElement('td')
+            let tdData = document.createElement('td')
+
+            tdNome.innerHTML = jogadores[i].nome
+            tdScore.innerHTML = jogadores[i].pontos
+            tdTempo.innerHTML = jogadores[i].tempo
+            tdData.innerHTML = jogadores[i].data
+
+            tr.appendChild(tdNome)
+            tr.appendChild(tdScore)
+            tr.appendChild(tdTempo)
+            tr.appendChild(tdData)
+
+            elBody.appendChild(tr)
+        }
+    }
+
+
     let noGrav = true
     let bolas = []
     let jogos = []
@@ -414,15 +450,30 @@ window.onload = function () {
     //------------------------------------------------------------------
     let consoles = false
     let nivelPassado = false
+    let fimJogo = 0
 
+    let masterContainer = document.getElementById('masterContainer')
+    let alerta = document.getElementById('alerta')
+
+    function mostrarCenas(erro) {
+        masterContainer.style.display = 'block'
+        if (!erro) alerta.hidden = 'visible'
+    }
     //O que faz a magia continuar
     function draw() {
+        let inicioJogo = performance.now()
+
         //Os niveis vão para aqui
-        level = 3
+        // level = 3
         if (level == 1) nivel1()
         else if (level == 2) nivel2()
         else if (level == 3) nivel3()
-        else if (level == 4) ecraFinal()
+        else if (level == 4) {
+            // fimJogo = performance.now() - inicioJogo
+            // console.log(fimJogo)
+            mostrarCenas(false)
+            ecraFinal()
+        }
 
         //-------------------------
 
@@ -472,15 +523,33 @@ window.onload = function () {
             }
 
             console.log('Vidas - ' + devil.lives)
-            if (devil.lives > 0) {
+            if (devil.lives > 0 && boss.vidas > 0) {
                 devil.lives--
+                boss.number = 0
+                boss.x = 50
+                boss.y = 10
+                boss.vidas = 5
                 window.requestAnimationFrame(draw)
+
             }
             else { //Morte do Morty
-                devil.vy = -3
-                if (devil.y < 500) {
-                    devil.vy += 0.5
-                    devil.y -= devil.vy
+                // devil.vy = -3
+                // if (devil.y < 500) { não funciona porque já não está a "animar"....
+                //     devil.vy += 0.5
+                //     devil.y -= devil.vy
+                // }
+                if (devil.lives == 0) {
+                    mostrarCenas(true)
+                    fimJogo = performance.now() - inicioJogo
+                    console.log(score1 + Math.round(fimJogo)) //score final
+                }
+
+                if (boss.vidas == 0) {
+                    level++
+                    window.requestAnimationFrame(draw)
+                    mostrarCenas(true)
+                    fimJogo = performance.now() - inicioJogo
+                    console.log(score1 + Math.round(fimJogo))
                 }
             }
 
@@ -497,9 +566,13 @@ window.onload = function () {
 
         nivelPassado = false
 
-        if (bolas.length == 0 && level != 3) {
-            console.log('ata')
-            nivelPassado = true
+        if (bolas.length == 0) {
+            if (bolas.length == 0 && level != 3 && level != 4) {
+                console.log('ata')
+                nivelPassado = true
+            }
+
+            if (level <= 2) nivelPassado = true
         }
     }
 
@@ -602,10 +675,11 @@ window.onload = function () {
                         setas.splice(i, 1)
                         console.log(this.vidas)
                         this.vidas--
+                        if (this.vidas == 0) stopGame = true
                     }
                 }
             }
-            if(this.vidas == 0) return true;
+            if (this.vidas == 0) return true;
         }
     }
     let boss = new Boss(bighead.width, bighead.height)
@@ -641,12 +715,15 @@ window.onload = function () {
         boss.hits()
     }
     function ecraFinal() {
+        canvas.width = 1000
+        canvas.height = 600
         ctx.fillStyle = 'purple'
         ctx.fillRect(0, 0, canvas.width, canvas.height)
         ctx.drawImage(finalBackgroud, 0, 0, finalBackgroud.width, finalBackgroud.height, 0, 0, canvas.width, 500)
 
         ctx.fillStyle = "blue"
         ctx.fillRect(canvas.width / 2, canvas.height / 2, 100, 100)
+
     }
     //Mostrar Vidas
     function vidas() {
@@ -734,6 +811,66 @@ window.onload = function () {
         }
         ctx.stroke()
     }
+
+    //Inserir nome, pontuação e data
+    let submit = document.getElementById('submitNames')
+    submit.addEventListener('click', () => {
+        let nomeJog = document.getElementsByClassName('nomeJog')
+        let nome1 = "", nome2 = ""
+        let guardar = false;
+
+        if (nomeJog.length == 1) {
+            if (nomeJog[0].value != "") {
+                nome1 == nomeJog[0].value
+                guardar = true
+            }
+        } else {
+            if (nomeJog[0].value != "" && nomeJog[1].value != "") {
+                nomeJog[0].value = nome1
+                nomeJog[1].value = nome2
+                guardar = true
+            }
+        }
+
+        // let elBody = document.getElementById('elBody')
+        if (guardar == true) {
+
+            for (let i = 0; i < nomeJog.length; i++) {
+                let jog = new Jogador(nomeJog[i].value, score1 + fimJogo, fimJogo)
+                console.log(jog)
+                jogadores.push(jog)
+                let tr = document.createElement('tr')
+                let tdNome = document.createElement('td')
+                let tdScore = document.createElement('td')
+                let tdTempo = document.createElement('td')
+                let tdData = document.createElement('td')
+
+                tdNome.innerHTML = jog.nome
+                tdScore.innerHTML = jog.pontos
+                tdTempo.innerHTML = jog.tempo
+                tdData.innerHTML = jog.data
+
+                tr.appendChild(tdNome)
+                tr.appendChild(tdScore)
+                tr.appendChild(tdTempo)
+                tr.appendChild(tdData)
+
+                elBody.appendChild(tr)
+            }
+            localStorage.setItem('jogs', JSON.stringify(jogadores))
+        } else {
+            mostrarCenas(true)
+        }
+    })
 }
 
+// let label = document.createElement('label')
+// label.setAttribute('for', 'nomeJOGid')
+// label.innerHTML = 'Nome: '
+// let input = document.createElement('input')
+// input.setAttribute('id', 'nomeJOGid')
+// input.className = 'nomeJog'
+// input.setAttribute('placeholder', 'digita o teu nome')
+// containernome.appendChild(label)
+// containernome.appendChild(input)
 
