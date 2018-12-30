@@ -509,7 +509,7 @@ window.onload = function () {
 
     function mostrarCenas(erro) {
         masterContainer.style.display = 'block'
-        console.log(erro)
+        // console.log(erro)
         if (!erro) {
             alerta.style.hidden = 'visible'
         }
@@ -692,8 +692,8 @@ window.onload = function () {
         if (p.dead == false) {
             p.show()
             p.update()
+            p.powerItUp()
         }
-        p.powerItUp()
 
     }
 
@@ -725,8 +725,8 @@ window.onload = function () {
         if (p1.dead == false) {
             p1.show()
             p1.update()
+            p1.powerItUp()
         }
-        p1.powerItUp()
     }
 
     class Boss {
