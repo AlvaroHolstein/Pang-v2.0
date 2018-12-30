@@ -16,8 +16,13 @@ window.onload = function () {
     let jogadores = []
     let elBody = document.getElementById('elBody')
 
+    function confirmarJogs(novoNome) {
+        return jogadores.find(a => a.nome.toUpperCase() == novoNome.toUpperCase())
+    }
+
     if (localStorage.getItem('jogs')) {
         jogadores = JSON.parse(localStorage.getItem('jogs'))
+        jogadores = jogadores.sort((a, b) => b.pontos - a.pontos)
 
         for (let i = 0; i < jogadores.length; i++) {
             let tr = document.createElement('tr')
@@ -44,13 +49,6 @@ window.onload = function () {
     let noGrav = true
     let bolas = []
     let jogos = []
-    let jog1 = {
-        nome: '',
-        pontuacao: 0,
-        data: (date) => {
-            return new Date(date).toISOString()
-        }
-    }
 
     let stopGame = true
     let text = "PLAYER 2"
@@ -65,7 +63,8 @@ window.onload = function () {
     background3.src = "images/bg5_noBigHead.jpg"
     let finalBackgroud = new Image()
     finalBackgroud.src = "images/bg3.jpg"
-
+    let menuBackground = new Image()
+    menuBackground.src = "images/bg9.jpg"
 
     let mortyHead = new Image()
     mortyHead.src = "images/MORTYHEAD.PNG"
@@ -77,7 +76,7 @@ window.onload = function () {
     mees.src = "images/mees.png"
     //let pattern=ctx.createPattern(mees,"no-repeat");
 
-    let level = 1
+    let level = 0
 
     let MortyScaledWidth = 90
     let MortyScaledHeight = 80
@@ -390,7 +389,7 @@ window.onload = function () {
                             bolas.push(new Bola(diengBallx, diengBally, this.raio / 2, 1, true))
                             bolas.push(new Bola(diengBallx, diengBally, this.raio / 2, -1, true))
                         }
-                        //As setas só explodirem quando chegam ao "teto" devia ser um power up.
+                        //As setas só explodirem quando chegam ao "teto" devia ser um power up. IMPORTANTE!!!!!
                     }
                 }
             }
@@ -400,9 +399,61 @@ window.onload = function () {
         }
     }
 
+    class PowerUp {
+        constructor() { //Vai ser um power up de setas
+            this.y = 0
+            this.x = Math.round(Math.random() * 460 + 20)
+            this.w = 20
+            this.h = 30
+            this.vely = 2
+            this.cont = 0
+            this.on = false
+            this.dead = false
+            this.vidaCont = 0
+        }
+
+        show() {
+            ctx.fillStyle = 'red'
+            ctx.fillRect(this.x, this.y, this.w, this.h)
+
+            if (this.y >= 470) this.vidaCont++
+            if (this.vidaCont >= 150) this.dead = true
+        }
+
+        update() {
+            this.y += this.vely
+            if (this.y + this.h >= 500) {
+                this.vely = 0
+                this.y = 470
+            }
+        }
+
+        powerItUp() {
+            // drawLine(devil.morty.altura, false)
+            if (devil.centro.x >= this.x && devil.centro.x <= this.x + this.w && this.y >= devil.morty.altura && this.on == false) {
+                console.log('ola')
+                nSetas = 2
+                this.on = true
+                this.dead = true
+            }
+
+            if (this.on) {
+                if (this.cont <= 200) {
+                    this.cont++
+                }
+                else {
+                    this.cont = 0
+                    this.on = false
+                    nSetas = 0 //Esta parte está a funcionar
+                }
+            }
+        }
+    }
+
     //Onde a magia começa
     window.requestAnimationFrame(draw)
 
+    let nSetas = 0
     let keyboardState = {
         left: false,
         right: false,
@@ -424,7 +475,7 @@ window.onload = function () {
         }
         //Lançar Lança
         if (event.key == ' ') {
-            if (setas.length == 0) {
+            if (setas.length <= nSetas) {
                 let newArrow = new Seta(devil.x + 45)
                 setas.push(newArrow)
             }
@@ -451,13 +502,17 @@ window.onload = function () {
     let consoles = false
     let nivelPassado = false
     let fimJogo = 0
+    let continuar = false
 
     let masterContainer = document.getElementById('masterContainer')
     let alerta = document.getElementById('alerta')
 
     function mostrarCenas(erro) {
         masterContainer.style.display = 'block'
-        if (!erro) alerta.hidden = 'visible'
+        console.log(erro)
+        if (!erro) {
+            alerta.style.hidden = 'visible'
+        }
     }
     //O que faz a magia continuar
     function draw() {
@@ -465,7 +520,8 @@ window.onload = function () {
 
         //Os niveis vão para aqui
         // level = 3
-        if (level == 1) nivel1()
+        if (level == 0) menu()
+        else if (level == 1) nivel1()
         else if (level == 2) nivel2()
         else if (level == 3) nivel3()
         else if (level == 4) {
@@ -501,7 +557,7 @@ window.onload = function () {
             // nivelPassado = false;
         }
 
-        if (level != 4) {
+        if (level != 4 && level != 0) {
             vidas()
 
             ctx.fillStyle = 'white'
@@ -533,7 +589,7 @@ window.onload = function () {
 
             }
             else { //Morte do Morty
-                // devil.vy = -3
+                // devil.vy = -3d
                 // if (devil.y < 500) { não funciona porque já não está a "animar"....
                 //     devil.vy += 0.5
                 //     devil.y -= devil.vy
@@ -554,7 +610,7 @@ window.onload = function () {
             }
 
             let nBolas = 0
-            if (level == 1) nBolas = 1
+            if (level == 1 || level == 0) nBolas = 1
             else if (level == 2) nBolas = 4
             else if (level == 3) nBolas = 0
 
@@ -567,19 +623,55 @@ window.onload = function () {
         nivelPassado = false
 
         if (bolas.length == 0) {
-            if (bolas.length == 0 && level != 3 && level != 4) {
-                console.log('ata')
-                nivelPassado = true
+            if (level == 0) {
+                if (continuar == true) nivelPassado = true
             }
+            else {
 
-            if (level <= 2) nivelPassado = true
+                if (bolas.length == 0 && level != 3 && level != 4) {
+                    nivelPassado = true
+                }
+
+                if (level <= 2) nivelPassado = true
+            }
         }
     }
 
+    function menu() {
+        ctx.fillStyle = 'black'
+        ctx.fillRect(0, 0, canvas.width, canvas.height)
+        ctx.drawImage(menuBackground, 0, 0, menuBackground.width, menuBackground.height, 0, 0, canvas.width, 500)
+
+        ctx.fillStyle = 'white'
+        ctx.fillRect(300, 540, 100, 30)
+        ctx.fillRect(500, 540, 100, 30)
+
+        ctx.fillStyle = 'black'
+        ctx.font = "20px Arial";
+        ctx.fillText('1 Player', 310, 560)
+
+        ctx.font = "20px Arial";
+        ctx.fillText('2 Players', 510, 560)
+
+        //Clicar nos retangulos
+        canvas.addEventListener('click', (evt) => {
+            let mx = evt.pageX - canvas.offsetLeft
+            let my = evt.pageY - canvas.offsetTop
+
+            //1Player
+            if (mx >= 300 && mx <= 400 && my >= 540 && my <= 570) {
+                console.log('Player = 1')
+                level = 1;
+            }
+            if (mx >= 500 && mx <= 600 && my >= 540 && my <= 570) console.log('Player = 2')
+        })
+    }
+    let p = new PowerUp()
     function nivel1() {
         ctx.fillStyle = 'black'
         ctx.fillRect(0, 0, canvas.width, canvas.height)
         ctx.drawImage(background1, 0, 0, background1.width, background1.height, 0, 0, canvas.width, 500)
+
 
         for (let i = 0; i < setas.length; i++) {
             setas[i].draw()
@@ -596,8 +688,16 @@ window.onload = function () {
             bola.update()
             bola.colide()
         }
+
+        if (p.dead == false) {
+            p.show()
+            p.update()
+        }
+        p.powerItUp()
+
     }
 
+    let p1 = new PowerUp()
     function nivel2() {
         ctx.fillStyle = 'green'
         ctx.fillRect(0, 0, canvas.width, canvas.height)
@@ -621,6 +721,12 @@ window.onload = function () {
             bola.update()
             bola.colide()
         }
+
+        if (p1.dead == false) {
+            p1.show()
+            p1.update()
+        }
+        p1.powerItUp()
     }
 
     class Boss {
@@ -684,6 +790,7 @@ window.onload = function () {
     }
     let boss = new Boss(bighead.width, bighead.height)
 
+    let p2 = new PowerUp()
     function nivel3() {
         ctx.fillStyle = 'brown'
         ctx.fillRect(0, 0, canvas.width, canvas.height)
@@ -713,6 +820,12 @@ window.onload = function () {
         boss.update()
         boss.launchBalls()
         boss.hits()
+
+        if (p2.dead == false) {
+            p2.show()
+            p2.update()
+        }
+        p2.powerItUp()
     }
     function ecraFinal() {
         canvas.width = 1000
@@ -819,24 +932,27 @@ window.onload = function () {
         let nome1 = "", nome2 = ""
         let guardar = false;
 
+
+
         if (nomeJog.length == 1) {
             if (nomeJog[0].value != "") {
                 nome1 == nomeJog[0].value
-                guardar = true
+                if (confirmarJogs(nomeJog[0].value) == undefined) guardar = true
             }
         } else {
             if (nomeJog[0].value != "" && nomeJog[1].value != "") {
                 nomeJog[0].value = nome1
                 nomeJog[1].value = nome2
-                guardar = true
+                if (confirmarJogs(nomeJog[0].value) == undefined && confirmarJogs(nomeJog[1].value) == undefined) guardar = true
             }
         }
 
         // let elBody = document.getElementById('elBody')
         if (guardar == true) {
+            jogadores = jogadores.sort((a, b) => b.pontos - a.pontos)
 
             for (let i = 0; i < nomeJog.length; i++) {
-                let jog = new Jogador(nomeJog[i].value, score1 + fimJogo, fimJogo)
+                let jog = new Jogador(nomeJog[i].value, score1 + Math.round(fimJogo) + devil.vidas, fimJogo)
                 console.log(jog)
                 jogadores.push(jog)
                 let tr = document.createElement('tr')
