@@ -70,6 +70,9 @@ window.onload = function () {
     let mortyHead = new Image()
     mortyHead.src = "images/MORTYHEAD.PNG"
 
+    let gameoverImg = new Image()
+    gameoverImg.src = "images/endgame.png"
+
     let space = new Image()
     space.src = "images/space.jpg"
 
@@ -529,14 +532,14 @@ window.onload = function () {
         let inicioJogo = performance.now()
 
         //Os niveis vão para aqui
-        // if (level==2) level = 2
+        //level = 2
         if (level == 0) menu()
         else if (level == 1) nivel1()
         else if (level == 2) nivel2()
         else if (level == 3) nivel3()
         else if (level == 4) {
             mostrarCenas(false)
-            ecraFinal()
+            ecraFinalWin()
         }
 
         //-------------------------
@@ -608,10 +611,11 @@ window.onload = function () {
             }
             else {
                 if (devil.lives == 0) {
+                    
                     mostrarCenas(true)
                     fimJogo = performance.now() - inicioJogo
                     console.log(score1 + Math.round(fimJogo)) //score final
-                    ecraFinal()
+                    ecraFinalLost()
                     document.getElementById('NomeJogador').focus()
                 }
 
@@ -874,7 +878,15 @@ window.onload = function () {
         }
         p2.powerItUp()
     }
-    function ecraFinal() {
+    function ecraFinalLost() {
+        canvas.width = 1000
+        canvas.height = 600
+        ctx.fillStyle = 'purple'
+        ctx.fillRect(0, 0, canvas.width, canvas.height)
+        ctx.drawImage(gameoverImg, 0, 0, gameoverImg.width, gameoverImg.height, 0, 0, canvas.width, canvas.height)
+    }
+
+    function ecraFinalWin() {
         canvas.width = 1000
         canvas.height = 600
         ctx.fillStyle = 'purple'
