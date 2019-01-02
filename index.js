@@ -532,7 +532,7 @@ window.onload = function () {
         let inicioJogo = performance.now()
 
         //Os niveis vão para aqui
-        //level = 3
+        level = 2
         if (level == 0) menu()
         else if (level == 1) nivel1()
         else if (level == 2) nivel2()
@@ -559,7 +559,7 @@ window.onload = function () {
 
             let nBolas = 0
             if (level == 1) nBolas = 2
-            else if (level == 2) nBolas = 4
+            else if (level == 2) nBolas = 1
             else if (level == 3) nBolas = 2
 
 
@@ -627,8 +627,11 @@ window.onload = function () {
 
             let nBolas = 0
             if (level == 1 || level == 0) nBolas = 1
-            else if (level == 2) nBolas = 2
-            else if (level == 3) nBolas = 0
+            else if (level == 2) nBolas = 4
+            else if (level == 3) {
+                devil.morty.pes = 0
+                nBolas = 0
+            }
 
             for (let i = 0; i < nBolas; i++) {
                 bolas.push(new Bola())
@@ -871,9 +874,6 @@ window.onload = function () {
         ctx.fillStyle = 'purple'
         ctx.fillRect(0, 0, canvas.width, canvas.height)
         ctx.drawImage(finalBackgroud, 0, 0, finalBackgroud.width, finalBackgroud.height, 0, 0, canvas.width, canvas.height)
-
-
-
     }
     //Mostrar Vidas
     function vidas() {
