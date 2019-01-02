@@ -74,7 +74,7 @@ window.onload = function () {
     space.src = "images/space.jpg"
 
     let flame = new Image()
-    flame.src ="images/fire.png"
+    flame.src = "images/fire.png"
 
     let mees = new Image()
     mees.src = "images/mees.png"
@@ -249,39 +249,40 @@ window.onload = function () {
         }
 
         up(vel) {
-            if (keyboardState.up) {
-                this.vY = vel
-                // console.log(this.vY)
-                if (this.morty.pes <= 250) keyboardState.up = false
-            }
-            this.aSubir = false
+            if (level == 2) {
+                if (keyboardState.up) {
+                    this.vY = vel
+                    // console.log(this.vY)
+                    if (this.morty.pes <= 250) keyboardState.up = false
+                }
+                this.aSubir = false
 
-            if (this.centro.x >= escada.x - 5 && this.centro.x <= escada.x + escada.width + 5) {
-                this.aSubir = true
-                if (keyboardState.up == true) {
-                    this.y -= this.vY
+                if (this.centro.x >= escada.x - 5 && this.centro.x <= escada.x + escada.width + 5) {
+                    this.aSubir = true
+                    if (keyboardState.up == true) {
+                        this.y -= this.vY
+                    }
                 }
             }
-
         }
         down(vel) {
-            if (keyboardState.down) {
-                this.vY = vel
-                if (this.morty.pes >= 500) keyboardState.down = false
-            }
-            this.aSubir = false
-            if (this.centro.x >= escada.x - 5 && this.centro.x <= escada.x + escada.width + 5) {
-                this.aSubir = true
-                if (keyboardState.down == true) {
-                    this.y -= this.vY
+            if (level == 2) {
+                if (keyboardState.down) {
+                    this.vY = vel
+                    if (this.morty.pes >= 500) keyboardState.down = false
+                }
+                this.aSubir = false
+                if (this.centro.x >= escada.x - 5 && this.centro.x <= escada.x + escada.width + 5) {
+                    this.aSubir = true
+                    if (keyboardState.down == true) {
+                        this.y -= this.vY
+                    }
                 }
             }
-
         }
 
         grav() {
             noGrav = true
-
 
             if (this.morty.pes <= 250 && this.aSubir == false) {
                 noGrav = false
@@ -291,11 +292,8 @@ window.onload = function () {
                 if (this.y < 450 && this.aSubir == false) {
                     this.vY += this.gravidade
                     this.y += this.vY
-
                 }
             }
-
-
         }
     }
 
@@ -321,8 +319,7 @@ window.onload = function () {
             this.velynovabola = 1
         }
         show() {
-            if (level == 3)
-            {
+            if (level == 3) {
                 ctx.fillStyle = ctx.createPattern(flame, "repeat")
                 ctx.strokeStyle = "red"
                 ctx.lineWidth = "2"
@@ -359,11 +356,11 @@ window.onload = function () {
 
             }
             else {
-
                 if (this.vx >= 1 && this.lado == 1) this.vx -= 0.2
 
                 if (this.vx <= -1 && this.lado == -1) this.vx += 0.2
             }
+
             this.vy += this.acel
             this.x += this.vx
             this.y += this.vy
@@ -415,7 +412,7 @@ window.onload = function () {
     class PowerUp {
         constructor() { //Vai ser um power up de setas
             this.y = 0
-            this.x = Math.round(Math.random() * 460 + 20)
+            this.x = Math.round(Math.random() * 1000 + 20)
             this.w = 20
             this.h = 30
             this.vely = 2
@@ -532,14 +529,12 @@ window.onload = function () {
         let inicioJogo = performance.now()
 
         //Os niveis vão para aqui
-        level = 2
+        // if (level==2) level = 2
         if (level == 0) menu()
         else if (level == 1) nivel1()
         else if (level == 2) nivel2()
         else if (level == 3) nivel3()
         else if (level == 4) {
-            // fimJogo = performance.now() - inicioJogo
-            // console.log(fimJogo)
             mostrarCenas(false)
             ecraFinal()
         }
@@ -558,9 +553,18 @@ window.onload = function () {
             console.log('Nivel - ' + level)
 
             let nBolas = 0
-            if (level == 1) nBolas = 2
-            else if (level == 2) nBolas = 1
-            else if (level == 3) nBolas = 2
+            if (level == 1) {
+                nBolas = 2
+                nSetas = 0
+            }
+            else if (level == 2) {
+                nBolas = 1
+                nSetas = 0
+            }
+            else if (level == 3) {
+                nBolas = 2
+                devil.y = 450
+            }
 
 
             for (let i = 0; i < nBolas; i++) {
@@ -598,16 +602,11 @@ window.onload = function () {
                 boss.x = 50
                 boss.y = 10
                 boss.vidas = 5
-                if(level == 1) p.y = 0
+                if (level == 1) p.y = 0
                 window.requestAnimationFrame(draw)
 
             }
-            else { //Morte do Morty
-                // devil.vy = -3d
-                // if (devil.y < 500) { não funciona porque já não está a "animar"....
-                //     devil.vy += 0.5
-                //     devil.y -= devil.vy
-                // }
+            else {
                 if (devil.lives == 0) {
                     mostrarCenas(true)
                     fimJogo = performance.now() - inicioJogo
@@ -622,15 +621,26 @@ window.onload = function () {
                     mostrarCenas(true)
                     fimJogo = performance.now() - inicioJogo
                     console.log(score1 + Math.round(fimJogo))
+                    document.getElementById('NomeJogador').focus()
                 }
             }
 
             let nBolas = 0
-            if (level == 1 || level == 0) nBolas = 1
-            else if (level == 2) nBolas = 4
+            if (level == 1 || level == 0) {
+                nBolas = 1
+                nSetas = 0
+                p = new PowerUp()
+            }
+            else if (level == 2) {
+                nBolas = 1
+                nSetas = 0
+                p1 = new PowerUp()
+            }
             else if (level == 3) {
-                devil.morty.pes = 0
+                devil.y = 450
                 nBolas = 0
+                nSetas = 0
+                p2 = new PowerUp()
             }
 
             for (let i = 0; i < nBolas; i++) {
@@ -666,7 +676,7 @@ window.onload = function () {
         ctx.strokeStyle = "white"
         ctx.fillRect(350, 540, 100, 30)
         ctx.fillRect(550, 540, 100, 30)
-        ctx.strokeRect(350,540, 100, 30)
+        ctx.strokeRect(350, 540, 100, 30)
         ctx.strokeRect(550, 540, 100, 30)
 
         ctx.fillStyle = 'white'
@@ -740,11 +750,9 @@ window.onload = function () {
         devil.update()
         devil.show()
 
-        for (let i=0; i<bolas.length; i++)
-        {
-            if (i<=(bolas.length-1)/2)
-            {
-                ballBounceFloor= 250
+        for (let i = 0; i < bolas.length; i++) {
+            if (i <= (bolas.length - 1) / 2) {
+                ballBounceFloor = 250
                 setaRange = 280
             }
             else {
@@ -843,8 +851,6 @@ window.onload = function () {
             setas[i].max()
         }
 
-
-
         devil.up(5)
         devil.down(-5)
         devil.grav()
@@ -914,16 +920,15 @@ window.onload = function () {
             this.launchY = devil.y + devil.altura
         }
         max() {
-            if (level == 2)
-            {
-                
-                if(devil.morty.pes <= 250){
+            if (level == 2) {
+
+                if (devil.morty.pes <= 250) {
 
                     if (this.y <= 0) {
-                        
+
                         setas = setas.filter(set => set.id != this.id)
                     }
-                    
+
                 }
 
                 else {
@@ -936,8 +941,7 @@ window.onload = function () {
 
 
             }
-            else 
-            {
+            else {
                 if (this.y <= 0) {
                     setas = setas.filter(set => set.id != this.id)
                 }
@@ -1041,7 +1045,16 @@ window.onload = function () {
             mostrarCenas(true)
         }
     })
+
+    function getTimePoints(ini, end) {
+        let interval = end - ini
+        let timeInSeconds = interval / 1000
+
+
+    }
 }
+
+
 
 // let label = document.createElement('label')
 // label.setAttribute('for', 'nomeJOGid')
