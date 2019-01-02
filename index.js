@@ -45,7 +45,8 @@ window.onload = function () {
         }
     }
 
-
+    let ballBounceFloor = 500
+    let setaRange = 0
     let noGrav = true
     let bolas = []
     let jogos = []
@@ -62,15 +63,18 @@ window.onload = function () {
     let background3 = new Image()
     background3.src = "images/bg5_noBigHead.jpg"
     let finalBackgroud = new Image()
-    finalBackgroud.src = "images/bg3.jpg"
+    finalBackgroud.src = "images/endImg.png"
     let menuBackground = new Image()
-    menuBackground.src = "images/bg9.jpg"
+    menuBackground.src = "images/INTRO.png"
 
     let mortyHead = new Image()
     mortyHead.src = "images/MORTYHEAD.PNG"
 
     let space = new Image()
     space.src = "images/space.jpg"
+
+    let flame = new Image()
+    flame.src ="images/fire.png"
 
     let mees = new Image()
     mees.src = "images/mees.png"
@@ -317,10 +321,19 @@ window.onload = function () {
             this.velynovabola = 1
         }
         show() {
+            if (level == 3)
+            {
+                ctx.fillStyle = ctx.createPattern(flame, "repeat")
+                ctx.strokeStyle = "red"
+                ctx.lineWidth = "2"
+            }
+            else {
+                ctx.fillStyle = ctx.createPattern(space, "repeat")
+                ctx.strokeStyle = "black"
+                ctx.lineWidth = "2"
 
-            ctx.fillStyle = ctx.createPattern(space, "repeat")
-            ctx.strokeStyle = "green"
-            ctx.lineWidth = "5"
+            }
+
             ctx.save()
             ctx.beginPath()
             ctx.arc(this.x, this.y, this.raio, 0, 2 * Math.PI)
@@ -356,9 +369,9 @@ window.onload = function () {
             this.y += this.vy
 
 
-            if (this.y + this.raio >= 500) {
+            if (this.y + this.raio >= ballBounceFloor) {
                 this.vy *= -1
-                this.y = 500 - this.raio
+                this.y = ballBounceFloor - this.raio
             }
             if (this.x - this.raio <= 0 || this.x + this.raio >= canvas.width) this.vx *= -1
         }
@@ -519,7 +532,7 @@ window.onload = function () {
         let inicioJogo = performance.now()
 
         //Os niveis vão para aqui
-        // level = 3
+        //level = 3
         if (level == 0) menu()
         else if (level == 1) nivel1()
         else if (level == 2) nivel2()
@@ -545,9 +558,9 @@ window.onload = function () {
             console.log('Nivel - ' + level)
 
             let nBolas = 0
-            if (level == 1) nBolas = 1
+            if (level == 1) nBolas = 2
             else if (level == 2) nBolas = 4
-            else if (level == 3) nBolas = 1
+            else if (level == 3) nBolas = 2
 
 
             for (let i = 0; i < nBolas; i++) {
@@ -585,6 +598,7 @@ window.onload = function () {
                 boss.x = 50
                 boss.y = 10
                 boss.vidas = 5
+                if(level == 1) p.y = 0
                 window.requestAnimationFrame(draw)
 
             }
@@ -598,6 +612,8 @@ window.onload = function () {
                     mostrarCenas(true)
                     fimJogo = performance.now() - inicioJogo
                     console.log(score1 + Math.round(fimJogo)) //score final
+                    ecraFinal()
+                    document.getElementById('NomeJogador').focus()
                 }
 
                 if (boss.vidas == 0) {
@@ -611,7 +627,7 @@ window.onload = function () {
 
             let nBolas = 0
             if (level == 1 || level == 0) nBolas = 1
-            else if (level == 2) nBolas = 4
+            else if (level == 2) nBolas = 2
             else if (level == 3) nBolas = 0
 
             for (let i = 0; i < nBolas; i++) {
@@ -642,16 +658,20 @@ window.onload = function () {
         ctx.fillRect(0, 0, canvas.width, canvas.height)
         ctx.drawImage(menuBackground, 0, 0, menuBackground.width, menuBackground.height, 0, 0, canvas.width, 500)
 
+        ctx.fillStyle = "rgba(50, 255, 86, 0.9)"
+        ctx.lineWidth = "4"
+        ctx.strokeStyle = "white"
+        ctx.fillRect(350, 540, 100, 30)
+        ctx.fillRect(550, 540, 100, 30)
+        ctx.strokeRect(350,540, 100, 30)
+        ctx.strokeRect(550, 540, 100, 30)
+
         ctx.fillStyle = 'white'
-        ctx.fillRect(300, 540, 100, 30)
-        ctx.fillRect(500, 540, 100, 30)
+        ctx.font = "Bold 20px Arial";
+        ctx.fillText('1 Player', 360, 561)
 
-        ctx.fillStyle = 'black'
-        ctx.font = "20px Arial";
-        ctx.fillText('1 Player', 310, 560)
-
-        ctx.font = "20px Arial";
-        ctx.fillText('2 Players', 510, 560)
+        ctx.font = "Bold 20px Arial";
+        ctx.fillText('2 Players', 557, 561)
 
         //Clicar nos retangulos
         canvas.addEventListener('click', (evt) => {
@@ -659,11 +679,11 @@ window.onload = function () {
             let my = evt.pageY - canvas.offsetTop
 
             //1Player
-            if (mx >= 300 && mx <= 400 && my >= 540 && my <= 570) {
+            if (mx >= 360 && mx <= 460 && my >= 540 && my <= 570) {
                 console.log('Player = 1')
                 level = 1;
             }
-            if (mx >= 500 && mx <= 600 && my >= 540 && my <= 570) console.log('Player = 2')
+            if (mx >= 560 && mx <= 660 && my >= 540 && my <= 570) console.log('Player = 2')
         })
     }
     let p = new PowerUp()
@@ -699,7 +719,7 @@ window.onload = function () {
 
     let p1 = new PowerUp()
     function nivel2() {
-        ctx.fillStyle = 'green'
+        ctx.fillStyle = 'black'
         ctx.fillRect(0, 0, canvas.width, canvas.height)
         ctx.drawImage(background2, 0, 0, background2.width, background2.height, 0, 0, canvas.width, 500)
 
@@ -716,11 +736,28 @@ window.onload = function () {
         devil.grav()
         devil.update()
         devil.show()
-        for (let bola of bolas) {
+
+        for (let i=0; i<bolas.length; i++)
+        {
+            if (i<=(bolas.length-1)/2)
+            {
+                ballBounceFloor= 250
+                setaRange = 280
+            }
+            else {
+                ballBounceFloor = 500
+            }
+            bolas[i].show()
+            bolas[i].update()
+            bolas[i].colide()
+        }
+
+
+        /*for (let bola of bolas) {
             bola.show()
             bola.update()
             bola.colide()
-        }
+        }*/
 
         if (p1.dead == false) {
             p1.show()
@@ -792,7 +829,8 @@ window.onload = function () {
 
     let p2 = new PowerUp()
     function nivel3() {
-        ctx.fillStyle = 'brown'
+        ballBounceFloor = 500
+        ctx.fillStyle = 'black'
         ctx.fillRect(0, 0, canvas.width, canvas.height)
         ctx.drawImage(background3, 0, 0, background3.width, background3.height, 0, 0, canvas.width, 500)
 
@@ -832,10 +870,9 @@ window.onload = function () {
         canvas.height = 600
         ctx.fillStyle = 'purple'
         ctx.fillRect(0, 0, canvas.width, canvas.height)
-        ctx.drawImage(finalBackgroud, 0, 0, finalBackgroud.width, finalBackgroud.height, 0, 0, canvas.width, 500)
+        ctx.drawImage(finalBackgroud, 0, 0, finalBackgroud.width, finalBackgroud.height, 0, 0, canvas.width, canvas.height)
 
-        ctx.fillStyle = "blue"
-        ctx.fillRect(canvas.width / 2, canvas.height / 2, 100, 100)
+
 
     }
     //Mostrar Vidas
@@ -877,8 +914,34 @@ window.onload = function () {
             this.launchY = devil.y + devil.altura
         }
         max() {
-            if (this.y <= 0) {
-                setas = setas.filter(set => set.id != this.id)
+            if (level == 2)
+            {
+                
+                if(devil.morty.pes <= 250){
+
+                    if (this.y <= 0) {
+                        
+                        setas = setas.filter(set => set.id != this.id)
+                    }
+                    
+                }
+
+                else {
+
+                    if (this.y <= setaRange) {
+                        setas = setas.filter(set => set.id != this.id)
+                    }
+
+                }
+
+
+            }
+            else 
+            {
+                if (this.y <= 0) {
+                    setas = setas.filter(set => set.id != this.id)
+                }
+
             }
         }
         draw() {
@@ -946,13 +1009,13 @@ window.onload = function () {
                 if (confirmarJogs(nomeJog[0].value) == undefined && confirmarJogs(nomeJog[1].value) == undefined) guardar = true
             }
         }
-
+        // CH
         // let elBody = document.getElementById('elBody')
         if (guardar == true) {
             jogadores = jogadores.sort((a, b) => b.pontos - a.pontos)
 
             for (let i = 0; i < nomeJog.length; i++) {
-                let jog = new Jogador(nomeJog[i].value, score1 + Math.round(fimJogo) + devil.vidas, fimJogo)
+                let jog = new Jogador(nomeJog[i].value, score1 + Math.round(fimJogo) + devil.lives, fimJogo)
                 console.log(jog)
                 jogadores.push(jog)
                 let tr = document.createElement('tr')
