@@ -1,9 +1,14 @@
 window.onload = function () {
     const canvas = document.getElementById('myCanvas')
     const ctx = canvas.getContext("2d")
-
+    let inicioJogo = null
     canvas.width = 1000
     canvas.height = 600
+    let mostrarAjuda = true
+    function getSeconds(time) {
+        // console.log(time)
+        return Math.round(time / 1000)
+    }
 
     class Jogador {
         constructor(nome, pontos, tempo) {
@@ -20,6 +25,14 @@ window.onload = function () {
         return jogadores.find(a => a.nome.toUpperCase() == novoNome.toUpperCase())
     }
 
+    let nSetas = 0
+    let keyboardState = {
+        left: false,
+        right: false,
+        up: false,
+        down: false
+    }
+
     if (localStorage.getItem('jogs')) {
         jogadores = JSON.parse(localStorage.getItem('jogs'))
         jogadores = jogadores.sort((a, b) => b.pontos - a.pontos)
@@ -33,7 +46,7 @@ window.onload = function () {
 
             tdNome.innerHTML = jogadores[i].nome
             tdScore.innerHTML = jogadores[i].pontos
-            tdTempo.innerHTML = jogadores[i].tempo
+            tdTempo.innerHTML = getSeconds(jogadores[i].tempo) + 's'
             tdData.innerHTML = jogadores[i].data
 
             tr.appendChild(tdNome)
@@ -137,18 +150,19 @@ window.onload = function () {
 
     //el Diablo
     class Devil {
-        constructor() {
-            this.x = 300
-            this.y = 450
+        constructor(keyboardstate = keyboardState, image = img, x = 300, y = 450) {
+            this.x = x
+            this.y = y
             // this.vivo = true
             this.fat = 17
             this.altura = 50
             this.lives = 3
+            this.keys = keyboardstate
 
             this.gravidade = 0.5
 
             this.aSubir = false
-
+            this.image = image
             this.morty = {
                 left: this.x + MortyScaledWidth - this.fat,
                 right: this.x + this.fat,
@@ -170,31 +184,31 @@ window.onload = function () {
 
 
         show() {
-            ctx.drawImage(img, MortyWidth * countFrame, row * MortyHeight, MortyWidth, MortyHeight, devil.x, this.y - 28, MortyScaledWidth, MortyScaledHeight)
+            ctx.drawImage(this.image, MortyWidth * countFrame, row * MortyHeight, MortyWidth, MortyHeight, devil.x, this.y - 28, MortyScaledWidth, MortyScaledHeight)
         }
 
         update() {
 
             // console.log(this.up())
-            if (keyboardState.right && devil.centro.x < canvas.width) //MORTY
+            if (this.keys.right && this.centro.x < canvas.width) //MORTY
             {
                 vX = 5;
                 controler = 4
                 row = 0
             }
-            else if (keyboardState.left && devil.centro.x > 0) {
+            else if (this.keys.left && this.centro.x > 0) {
                 vX = -5
                 controler = 4
                 row = 1
             }
-            else if (keyboardState.up && this.centro.x >= escada.x - 5 && this.centro.x <= escada.x + escada.width + 5) {
+            else if (this.keys.up && this.centro.x >= escada.x - 5 && this.centro.x <= escada.x + escada.width + 5) {
                 countFrame = 0
                 vX = 0
                 row = 2
                 controler = 2
 
             }
-            else if (keyboardState.down && this.centro.x >= escada.x - 5 && this.centro.x <= escada.x + escada.width + 5) {
+            else if (this.keys.down && this.centro.x >= escada.x - 5 && this.centro.x <= escada.x + escada.width + 5) {
                 countFrame = 0
                 vX = 0
                 row = 2
@@ -207,7 +221,7 @@ window.onload = function () {
                 controler = 1
             }
 
-            devil.x += vX
+            this.x += vX
 
 
             if (controler != 0) {
@@ -242,7 +256,7 @@ window.onload = function () {
                     this.x = 300
                     this.y = 450
                     stopGame = true
-                    score1 = 0
+                    if (this.lives != 0) score1 = 0
                     return true
                 }
 
@@ -253,16 +267,16 @@ window.onload = function () {
 
         up(vel) {
             if (level == 2) {
-                if (keyboardState.up) {
+                if (this.keys.up) {
                     this.vY = vel
                     // console.log(this.vY)
-                    if (this.morty.pes <= 250) keyboardState.up = false
+                    if (this.morty.pes <= 250) this.keys.up = false
                 }
                 this.aSubir = false
 
                 if (this.centro.x >= escada.x - 5 && this.centro.x <= escada.x + escada.width + 5) {
                     this.aSubir = true
-                    if (keyboardState.up == true) {
+                    if (this.keys.up == true) {
                         this.y -= this.vY
                     }
                 }
@@ -270,14 +284,14 @@ window.onload = function () {
         }
         down(vel) {
             if (level == 2) {
-                if (keyboardState.down) {
+                if (this.keys.down) {
                     this.vY = vel
-                    if (this.morty.pes >= 500) keyboardState.down = false
+                    if (this.morty.pes >= 500) this.keys.down = false
                 }
                 this.aSubir = false
                 if (this.centro.x >= escada.x - 5 && this.centro.x <= escada.x + escada.width + 5) {
                     this.aSubir = true
-                    if (keyboardState.down == true) {
+                    if (this.keys.down == true) {
                         this.y -= this.vY
                     }
                 }
@@ -315,7 +329,7 @@ window.onload = function () {
             this.lado = lado
             this.acel = 0.1
             this.raio = raio
-            this.floor = devil.y
+            // this.floor = devil.y
             this.id = this.getId()
             this.cor = "red"
             this.novabola = novabola
@@ -444,7 +458,6 @@ window.onload = function () {
         powerItUp() {
             // drawLine(devil.morty.altura, false)
             if (devil.centro.x >= this.x && devil.centro.x <= this.x + this.w && this.y >= devil.morty.altura && this.on == false) {
-                console.log('ola')
                 nSetas = 2
                 this.on = true
                 this.dead = true
@@ -466,13 +479,7 @@ window.onload = function () {
     //Onde a magia começa
     window.requestAnimationFrame(draw)
 
-    let nSetas = 0
-    let keyboardState = {
-        left: false,
-        right: false,
-        up: false,
-        down: false
-    }
+
     function onKeyDown(evt) {
         if (evt.keyCode == 39) {
             keyboardState.right = true
@@ -487,7 +494,7 @@ window.onload = function () {
             keyboardState.down = true
         }
         //Lançar Lança
-        if (event.key == ' ') {
+        if (evt.key == ' ') {
             if (setas.length <= nSetas) {
                 let newArrow = new Seta(devil.x + 45)
                 setas.push(newArrow)
@@ -529,12 +536,12 @@ window.onload = function () {
     }
     //O que faz a magia continuar
     function draw() {
-        let inicioJogo = performance.now()
-
         //Os niveis vão para aqui
-        //level = 2
+        // level = 3
         if (level == 0) menu()
-        else if (level == 1) nivel1()
+        else if (level == 1) {
+            nivel1()
+        }
         else if (level == 2) nivel2()
         else if (level == 3) nivel3()
         else if (level == 4) {
@@ -589,6 +596,10 @@ window.onload = function () {
         //O que faz a magia repetir se
         if (!stopGame) {
             window.requestAnimationFrame(draw)
+            if (mostrarAjuda == true && level == 1) {
+                ecraAjuda()
+                // window.requestAnimationFrame(draw)
+            }
         }
         else {
             while (bolas.length != 0) {
@@ -598,7 +609,6 @@ window.onload = function () {
                 setas.pop()
             }
 
-            console.log('Vidas - ' + devil.lives)
             if (devil.lives > 0 && boss.vidas > 0) {
                 devil.lives--
                 boss.number = 0
@@ -610,11 +620,12 @@ window.onload = function () {
 
             }
             else {
-                if (devil.lives == 0) {
-                    
+                if (devil.lives == 0 && mostrarAjuda == false) {
+
                     mostrarCenas(true)
                     fimJogo = performance.now() - inicioJogo
                     console.log(score1 + Math.round(fimJogo)) //score final
+                    console.log('tempo final - ' + fimJogo)
                     ecraFinalLost()
                     document.getElementById('NomeJogador').focus()
                 }
@@ -699,15 +710,18 @@ window.onload = function () {
             if (mx >= 360 && mx <= 460 && my >= 540 && my <= 570) {
                 console.log('Player = 1')
                 level = 1;
+                // inicioJogo = performance.now(), não vai fiar aqui por que o jogo só começa realmente quando sair do ecra de ajuda
             }
             if (mx >= 560 && mx <= 660 && my >= 540 && my <= 570) console.log('Player = 2')
         })
     }
     let p = new PowerUp()
+    // let corNivel1 = 'rgba('
     function nivel1() {
         ctx.fillStyle = 'black'
         ctx.fillRect(0, 0, canvas.width, canvas.height)
         ctx.drawImage(background1, 0, 0, background1.width, background1.height, 0, 0, canvas.width, 500)
+
 
 
         for (let i = 0; i < setas.length; i++) {
@@ -729,9 +743,8 @@ window.onload = function () {
         if (p.dead == false) {
             p.show()
             p.update()
-            p.powerItUp()
         }
-
+        p.powerItUp()
     }
 
     let p1 = new PowerUp()
@@ -777,8 +790,9 @@ window.onload = function () {
         if (p1.dead == false) {
             p1.show()
             p1.update()
-            p1.powerItUp()
         }
+        p1.powerItUp()
+
     }
 
     class Boss {
@@ -1028,22 +1042,38 @@ window.onload = function () {
         // CH
         // let elBody = document.getElementById('elBody')
         if (guardar == true) {
-            jogadores = jogadores.sort((a, b) => b.pontos - a.pontos)
-
             for (let i = 0; i < nomeJog.length; i++) {
-                let jog = new Jogador(nomeJog[i].value, score1 + Math.round(fimJogo) + devil.lives, fimJogo)
+                let sc = 0
+                if (devil.lives != 0 && i == 0) {
+                    sc = Math.round(getTimePoints(fimJogo))
+                    console.log('Score adicional de Tempo' + sc)
+                }
+
+                let jog = new Jogador(nomeJog[i].value, score1 + sc + devil.lives, fimJogo)
                 console.log(jog)
                 jogadores.push(jog)
+                nomeJog[i].value = ""
+                nomeJog[i].disabled = true
+            }
+
+            console.log('ataaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
+            jogadores = jogadores.sort((a, b) => b.pontos - a.pontos)
+            elBody.innerHTML = ""
+            for (let i = 0; i < jogadores.length; i++) {
+
+                // if (rick.lives != 0)
+
+
                 let tr = document.createElement('tr')
                 let tdNome = document.createElement('td')
                 let tdScore = document.createElement('td')
                 let tdTempo = document.createElement('td')
                 let tdData = document.createElement('td')
 
-                tdNome.innerHTML = jog.nome
-                tdScore.innerHTML = jog.pontos
-                tdTempo.innerHTML = jog.tempo
-                tdData.innerHTML = jog.data
+                tdNome.innerHTML = jogadores[i].nome
+                tdScore.innerHTML = jogadores[i].pontos
+                tdTempo.innerHTML = getSeconds(jogadores[i].tempo) + 's'
+                tdData.innerHTML = jogadores[i].data
 
                 tr.appendChild(tdNome)
                 tr.appendChild(tdScore)
@@ -1060,9 +1090,29 @@ window.onload = function () {
 
     function getTimePoints(ini, end) {
         let interval = end - ini
-        let timeInSeconds = interval / 1000
+        return (1000 / interval) * 1000
+    }
 
+    function a() { //Auxiliar ecrã ajuda
+        mostrarAjuda = false
+        console.log('Mostrar Ajuda - - - ' + mostrarAjuda)
+        // console.log(this)
+        inicioJogo = performance.now()
+        window.removeEventListener('keypress', a)
+    }
 
+    function ecraAjuda() {
+        window.addEventListener('keypress', a)
+        //Só quando se entra a primeira vez na página é que mostra o ecrã de ajuda, criar um botão para mostrar isto no menu
+
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.9)'
+        ctx.fillRect(0, 0, canvas.width, canvas.height)
+        // ctx.drawImage(gameoverImg, 0, 0, gameoverImg.width, gameoverImg.height, 0, 0, canvas.width, canvas.height)
+
+        ctx.fillStyle = 'white'
+        ctx.font = "20px Arial";
+        ctx.fillText('text', 20, 525)
+        ctx.fillText('Clica em qualquer tecla para continuar', 55, 590)
     }
 }
 
