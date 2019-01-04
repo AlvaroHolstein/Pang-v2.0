@@ -220,14 +220,14 @@ window.onload = function () {
                 this.countFrame = 0
                 this.vX = 0
                 this.row = 2
-                this.controler = 1
+                this.controler = 2
 
             }
             else if (this.keys.down && this.centro.x >= escada.x - 5 && this.centro.x <= escada.x + escada.width + 5) {
                 this.countFrame = 0
                 this.vX = 0
                 this.row = 2
-                this.controler = 1
+                this.controler = 2
 
             }
             else {
@@ -530,7 +530,7 @@ window.onload = function () {
         //Lançar Lança
         if (evt.key == ' ' || evt.key == 'control') {
             if (setas.length <= nSetas) {
-                let newArrow = new Seta(devil.x + 45)
+                let newArrow = new Seta(devil)
                 setas.push(newArrow)
             }
         }
@@ -538,7 +538,7 @@ window.onload = function () {
         if (player2) {
             if (evt.key == '1') {
                 if (setas.length <= nSetas) {
-                    let newArrow = new Seta(rick.x + 45)
+                    let newArrow = new Seta(rick)
                     setas.push(newArrow)
                 }
             }
@@ -691,7 +691,7 @@ window.onload = function () {
                 boss.y = 10
                 boss.vidas = 5
                 // if (level == 1) p.y = 0  
-                window.requestAnimationFrame(draw)
+                
 
             }
             
@@ -817,9 +817,16 @@ window.onload = function () {
             }
             if (boss.vidas == 0 || devil.lives == 0) {
                 // canvas.width / 2, 540, 120, 30
-                if (mx >= canvas.width / 2 && mx <= (canvas.width / 2) + 120 && my >= 540 && my <= 570) {
+                if (mx >= 440 && mx <= 560 && my >= 495 && my <= 525) {
                     //Vai ter que haver um if para o caso de haver dois players, por agora fica assim
+                    ctx.fillRect(440, 495, 120, 30)
+                    ctx.strokeRect(440, 495, 120, 30)
+                    masterContainer.style.display = 'none'
                     devil = new Devil()
+                    level = 0
+                    ballBounceFloor = 500
+                    draw()
+                    
                     console.log('Novo Jogo')
                 }
             }
@@ -1035,15 +1042,16 @@ window.onload = function () {
     function botaoRecomecar() {
 
         //Botão igual aos do menu
+        
         ctx.fillStyle = "rgba(50, 255, 86, 0.9)"
         ctx.lineWidth = "4"
         ctx.strokeStyle = "white"
-        ctx.fillRect(canvas.width / 2, 540, 120, 30)
-        ctx.strokeRect(canvas.width / 2, 540, 120, 30)
+        ctx.fillRect(440, 495, 120, 30)
+        ctx.strokeRect(440, 495, 120, 30)
 
         ctx.fillStyle = 'white'
         ctx.font = "Bold 20px Arial";
-        ctx.fillText('Recomeçar', (canvas.width / 2) + 5, 561)
+        ctx.fillText("Play again", 450, 517)
     }
     function ecraFinalLost() {
         canvas.width = 1000
@@ -1061,6 +1069,8 @@ window.onload = function () {
         ctx.fillStyle = 'purple'
         ctx.fillRect(0, 0, canvas.width, canvas.height)
         ctx.drawImage(finalBackgroud, 0, 0, finalBackgroud.width, finalBackgroud.height, 0, 0, canvas.width, canvas.height)
+
+        botaoRecomecar()
     }
     //Mostrar Vidas
     function vidas() {
@@ -1100,18 +1110,18 @@ window.onload = function () {
     let setas = [] //Array que vai guardar as setas
     //A seta
     class Seta {
-        constructor(x) {
-            this.x = x
-            this.y = devil.y
+        constructor(boneco) {
+            this.x = boneco.x + 45
+            this.y = boneco.y
             this.velSeta = 5
             this.cor = "lime"
             this.id = this.getId()
-            this.launchY = devil.y + devil.altura
+            this.launchY = boneco.y + boneco.altura
+            this.boneco = boneco
         }
         max() {
             if (level == 2) {
-
-                if (devil.morty.pes <= 250) {
+                if (this.boneco.morty.pes <= 250) {
 
                     if (this.y <= 0) {
 
@@ -1120,6 +1130,7 @@ window.onload = function () {
 
                 }
 
+            
                 else {
 
                     if (this.y <= setaRange) {
