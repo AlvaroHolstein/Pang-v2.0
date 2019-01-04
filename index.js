@@ -808,7 +808,7 @@ window.onload = function () {
         if (p.dead == false) {
             p.show()
             p.update()
-            console.log(rick)
+            // console.log(rick)
         }
         p.powerItUp()
     }
