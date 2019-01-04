@@ -32,6 +32,12 @@ window.onload = function () {
         up: false,
         down: false
     }
+    let keyboardStateRick = {
+        left: false,
+        right: false,
+        up: false,
+        down: false
+    }
 
     if (localStorage.getItem('jogs')) {
         jogadores = JSON.parse(localStorage.getItem('jogs'))
@@ -110,6 +116,9 @@ window.onload = function () {
     let img = new Image()
     img.src = "images/MORTY.png"
 
+    let img2 = new Image()
+    img2.src = "images/RICK.png"
+
     let ladder = new Image()
     ladder.src = "images/ladder.png"
 
@@ -183,7 +192,7 @@ window.onload = function () {
 
 
         show() {
-            ctx.drawImage(this.image, MortyWidth * countFrame, row * MortyHeight, MortyWidth, MortyHeight, devil.x, this.y - 28, MortyScaledWidth, MortyScaledHeight)
+            ctx.drawImage(this.image, MortyWidth * countFrame, row * MortyHeight, MortyWidth, MortyHeight, this.x, this.y - 28, MortyScaledWidth, MortyScaledHeight)
         }
 
         update() {
@@ -315,6 +324,7 @@ window.onload = function () {
 
 
     let devil = new Devil()
+    let rick = new Devil(keyboardStateRick, img2)
     let platform = new Platform()
     let escada = new Escada(100, 500, 30, 250)
 
@@ -492,6 +502,20 @@ window.onload = function () {
         else if (evt.keyCode == 40) {
             keyboardState.down = true
         }
+
+        if (evt.keyCode == 68) {
+            keyboardStateRick.right = true
+        }
+        else if (evt.keyCode == 65) {
+            keyboardStateRick.left = true
+        }
+        else if (evt.keyCode == 87) {
+            keyboardStateRick.up = true
+        }
+        else if (evt.keyCode == 83) {
+            keyboardStateRick.down = true
+        }
+
         //Lançar Lança
         if (evt.key == ' ') {
             if (setas.length <= nSetas) {
@@ -514,6 +538,22 @@ window.onload = function () {
         }
         else if (evt.keyCode == 40) {
             keyboardState.down = false
+        }
+
+
+        //Rick movement
+        if (evt.keyCode == 65) {
+            keyboardStateRick.left = false
+        }
+        else if (evt.keyCode == 87) {
+            keyboardStateRick.up = false
+            // devil.aSubir = false
+        }
+        else if (evt.keyCode == 83) {
+            keyboardStateRick.down = false
+        }
+        else if (evt.keyCode == 68) {
+            keyboardStateRick.right = false
         }
     }
     document.addEventListener('keyup', onKeyUp, false)
@@ -685,6 +725,8 @@ window.onload = function () {
         // devil.lives = 0
     }
 
+    let ad = new Image()
+    ad.src = "images/AdultSwim.svg"
     function menu() {
         ctx.fillStyle = 'black'
         ctx.fillRect(0, 0, canvas.width, canvas.height)
@@ -698,6 +740,12 @@ window.onload = function () {
         ctx.strokeRect(350, 540, 100, 30)
         ctx.strokeRect(550, 540, 100, 30)
 
+        // ctx.fillStyle = 'red'
+        // ctx.font = "Bold 10px Arial";
+        // ctx.fillText('All rights reserved to Adult Swim', 410, 500)
+
+        ctx.drawImage(ad, 410, 500);
+
         ctx.fillStyle = 'white'
         ctx.font = "Bold 20px Arial";
         ctx.fillText('1 Player', 360, 561)
@@ -705,7 +753,7 @@ window.onload = function () {
         ctx.font = "Bold 20px Arial";
         ctx.fillText('2 Players', 557, 561)
 
-        //Clicar nos retangulos
+        //Clicar nos retangulos, iiimportante
         canvas.addEventListener('click', (evt) => {
             let mx = evt.pageX - canvas.offsetLeft
             let my = evt.pageY - canvas.offsetTop
@@ -744,6 +792,13 @@ window.onload = function () {
         devil.grav()
         devil.update()
         devil.show()
+
+        rick.up(5)
+        rick.down(-5)
+        rick.grav()
+        rick.update()
+        rick.show()
+
         for (let bola of bolas) {
             bola.show()
             bola.update()
@@ -753,6 +808,7 @@ window.onload = function () {
         if (p.dead == false) {
             p.show()
             p.update()
+            console.log(rick)
         }
         p.powerItUp()
     }
@@ -777,6 +833,13 @@ window.onload = function () {
         devil.update()
         devil.show()
 
+        
+        rick.up(5)
+        rick.down(-5)
+        rick.grav()
+        rick.update()
+        rick.show()
+
         for (let i = 0; i < bolas.length; i++) {
             if (i <= (bolas.length - 1) / 2) {
                 ballBounceFloor = 250
@@ -794,7 +857,7 @@ window.onload = function () {
         /*for (let bola of bolas) {
             bola.show()
             bola.update()
-            bola.colide()
+            bola.colide(devil)
         }*/
 
         if (p1.dead == false) {
@@ -885,6 +948,14 @@ window.onload = function () {
         devil.update()
         devil.show()
 
+
+        
+        rick.up(5)
+        rick.down(-5)
+        rick.grav()
+        rick.update()
+        rick.show()
+
         for (let bola of bolas) {
             bola.show()
             bola.update()
@@ -915,17 +986,6 @@ window.onload = function () {
         ctx.fillStyle = 'white'
         ctx.font = "Bold 20px Arial";
         ctx.fillText('Recomeçar', (canvas.width / 2) + 5, 561)
-        // canvas.addEventListener('click', recomecar)
-        // function recomecar(evt) {
-        //     let mx = evt.pageX - canvas.offsetLeft
-        //     let my = evt.pageY - canvas.offsetTop
-
-        //     if (mx >= 360 && mx <= 460 && my >= 540 && my <= 570) {
-
-
-        //         canvas.removeEventListener('click', )
-        //     }
-        // }
     }
     function ecraFinalLost() {
         canvas.width = 1000
