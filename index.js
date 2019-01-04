@@ -72,6 +72,9 @@ window.onload = function () {
 
     let stopGame = true
     let text = "PLAYER 2"
+    let player2 = false
+    let rickhead = new Image()
+    rickhead.src = "images/RICKHEAD.png"
 
     let controlsImg = new Image()
     controlsImg.src = "images/CONTROLS.png"
@@ -109,10 +112,7 @@ window.onload = function () {
 
     let MortyHeight = 111
     let MortyWidth = 125
-    let countFrame = 0
-    let vX = 0
-    let row = 2
-    let controler = 1
+
 
     let img = new Image()
     img.src = "images/MORTY.png"
@@ -162,6 +162,7 @@ window.onload = function () {
         constructor(keyboardstate = keyboardState, image = img, x = 300, y = 450) {
             this.x = x
             this.y = y
+            this.id = 0
             // this.vivo = true
             this.fat = 17
             this.altura = 50
@@ -169,6 +170,11 @@ window.onload = function () {
             this.keys = keyboardstate
             this.score = 0
             this.gravidade = 0.5
+
+            // this.row = 2
+            // this.controler = 1
+            // this.countFrame = 0
+            // this.vX = 0
 
             this.aSubir = false
             this.image = image
@@ -193,7 +199,7 @@ window.onload = function () {
 
 
         show() {
-            ctx.drawImage(this.image, MortyWidth * countFrame, row * MortyHeight, MortyWidth, MortyHeight, this.x, this.y - 28, MortyScaledWidth, MortyScaledHeight)
+            ctx.drawImage(this.image, MortyWidth * this.countFrame, this.row * MortyHeight, MortyWidth, MortyHeight, this.x, this.y - 28, MortyScaledWidth, MortyScaledHeight)
         }
 
         update() {
@@ -201,45 +207,45 @@ window.onload = function () {
             // console.log(this.up())
             if (this.keys.right && this.centro.x < canvas.width) //MORTY
             {
-                vX = 5;
-                controler = 4
-                row = 0
+                this.vX = 5;
+                this.controler = 4
+                this.row = 0
             }
             else if (this.keys.left && this.centro.x > 0) {
-                vX = -5
-                controler = 4
-                row = 1
+                this.vX = -5
+                this.controler = 4
+                this.row = 1
             }
             else if (this.keys.up && this.centro.x >= escada.x - 5 && this.centro.x <= escada.x + escada.width + 5) {
-                countFrame = 0
-                vX = 0
-                row = 2
-                controler = 2
+                this.countFrame = 0
+                this.vX = 0
+                this.row = 2
+                this.controler = 1
 
             }
             else if (this.keys.down && this.centro.x >= escada.x - 5 && this.centro.x <= escada.x + escada.width + 5) {
-                countFrame = 0
-                vX = 0
-                row = 2
-                controler = 2
+                this.countFrame = 0
+                this.vX = 0
+                this.row = 2
+                this.controler = 1
 
             }
             else {
-                vX = 0
-                row = 2
-                controler = 1
+                this.vX = 0
+                this.row = 2
+                this.controler = 1
             }
 
-            this.x += vX
+            this.x += this.vX
 
 
-            if (controler != 0) {
-                countFrame++
+            if (this.controler != 0) {
+                this.countFrame++
             }
 
 
-            if (countFrame >= controler && controler != 0) {
-                countFrame = 0
+            if (this.countFrame >= this.controler && this.controler != 0) {
+                this.countFrame = 0
             }
         }
 
@@ -265,6 +271,8 @@ window.onload = function () {
                     this.x = 300
                     this.y = 450
                     stopGame = true
+                    console.log('ata')
+                    console.log(this.id)
                     if (this.lives != 0) this.score = 0
                     return true
                 }
@@ -325,7 +333,9 @@ window.onload = function () {
 
 
     let devil = new Devil()
-    let rick = new Devil(keyboardStateRick, img2)
+    devil.id = 1
+    let rick = null
+    // let rick = new Devil(keyboardStateRick, img2)
     let platform = new Platform()
     let escada = new Escada(100, 500, 30, 250)
 
@@ -518,10 +528,19 @@ window.onload = function () {
         }
 
         //Lançar Lança
-        if (evt.key == ' ') {
+        if (evt.key == ' ' || evt.key == 'control') {
             if (setas.length <= nSetas) {
                 let newArrow = new Seta(devil.x + 45)
                 setas.push(newArrow)
+            }
+        }
+
+        if (player2) {
+            if (evt.key == '1') {
+                if (setas.length <= nSetas) {
+                    let newArrow = new Seta(rick.x + 45)
+                    setas.push(newArrow)
+                }
             }
         }
     }
@@ -574,6 +593,7 @@ window.onload = function () {
             alerta.style.hidden = 'visible'
         }
     }
+    let idmorte = 0
     //O que faz a magia continuar
     function draw() {
         //Os niveis vão para aqui
@@ -592,9 +612,10 @@ window.onload = function () {
 
         //-------------------------
 
-        if (devil.morreu()) {
-            // reset = true //Vai levar mais merdas, porque temos que dar a hipotese de tentar outra vez sem dar refresh
-            // level = 1
+        if (devil.morreu()) idmorte = devil.id
+        if (player2) {
+            // console.log('tiny RICK ' + rick.id)
+            if (rick.morreu()) idmorte = rick.id
         }
 
         if (nivelPassado == true) {
@@ -628,10 +649,19 @@ window.onload = function () {
         if (level != 4 && level != 0) {
             vidas()
 
+            //Morty    
             ctx.fillStyle = 'white'
             ctx.font = "20px Arial";
             ctx.fillText(text, 20, 525)
             ctx.fillText(devil.score, 55, 590)
+
+            if (player2) {
+                //rick
+                ctx.fillStyle = 'white'
+                ctx.font = "20px Arial";
+                ctx.fillText(text, 895, 525)
+                ctx.fillText(rick.score, 935, 590)
+            }
         }
 
         //O que faz a magia repetir se
@@ -653,35 +683,46 @@ window.onload = function () {
                 setas.pop()
             }
 
-            if (devil.lives > 0 && boss.vidas > 0) {
-                devil.lives--
+
+
+            if (boss.vidas > 0 && level == 3) {
                 boss.number = 0
                 boss.x = 50
                 boss.y = 10
                 boss.vidas = 5
-                if (level == 1) p.y = 0
+                // if (level == 1) p.y = 0  
                 window.requestAnimationFrame(draw)
 
             }
-            else {
-                if (devil.lives == 0 && mostrarAjuda == false) {
+            
+            if (devil.lives == 0 && mostrarAjuda == false) {
 
-                    mostrarCenas(true)
-                    fimJogo = performance.now() - inicioJogo
-                    console.log(devil.score + Math.round(fimJogo)) //score final
-                    console.log('tempo final - ' + fimJogo)
-                    ecraFinalLost()
-                    document.getElementById('NomeJogador').focus()
-                }
+                mostrarCenas(true)
+                fimJogo = performance.now() - inicioJogo
+                console.log(devil.score + Math.round(fimJogo)) //score final
+                console.log('tempo final - ' + fimJogo)
+                ecraFinalLost()
+                document.getElementById('NomeJogador').focus()
+            }
 
-                if (boss.vidas == 0) {
-                    level++
-                    window.requestAnimationFrame(draw)
-                    mostrarCenas(true)
-                    fimJogo = performance.now() - inicioJogo
-                    console.log(devil.score + Math.round(fimJogo))
-                    document.getElementById('NomeJogador').focus()
-                }
+            if (devil.lives > 0 && (idmorte == 1 || idmorte == 0)) {
+                devil.lives--
+                window.requestAnimationFrame(draw)
+                if(player2) console.log(rick.lives)
+            }
+            if (rick != null && rick.lives > 0 && (idmorte == 2 || idmorte == 0)) {
+                rick.lives--
+                window.requestAnimationFrame(draw)
+                console.log('ataaaaaaaaaaaaaaaaaaaaaaaaa - ' + rick.lives)
+            }
+
+            if (boss.vidas == 0) {
+                level++
+                window.requestAnimationFrame(draw)
+                mostrarCenas(true)
+                fimJogo = performance.now() - inicioJogo
+                console.log(devil.score + Math.round(fimJogo))
+                document.getElementById('NomeJogador').focus()
             }
 
             let nBolas = 0
@@ -760,19 +801,29 @@ window.onload = function () {
             let my = evt.pageY - canvas.offsetTop
 
             //1Player
-            if (mx >= 360 && mx <= 460 && my >= 540 && my <= 570) {
-                console.log('Player = 1')
-                level = 1;
-                // inicioJogo = performance.now(), não vai fiar aqui por que o jogo só começa realmente quando sair do ecra de ajuda
+            if (level == 0) {
+                if (mx >= 360 && mx <= 460 && my >= 540 && my <= 570) {
+                    console.log('Player = 1')
+                    level = 1;
+                    // inicioJogo = performance.now(), não vai fiar aqui por que o jogo só começa realmente quando saair do ecra de ajuda
+                }
+                if (mx >= 560 && mx <= 660 && my >= 540 && my <= 570) {
+                    console.log('Player = 2')
+                    level = 1;
+                    rick = new Devil(keyboardStateRick, img2)
+                    rick.id = 2
+                    player2 = true
+                }
             }
-            if (mx >= 560 && mx <= 660 && my >= 540 && my <= 570) console.log('Player = 2')
+            if (boss.vidas == 0 || devil.lives == 0) {
+                // canvas.width / 2, 540, 120, 30
+                if (mx >= canvas.width / 2 && mx <= (canvas.width / 2) + 120 && my >= 540 && my <= 570) {
+                    //Vai ter que haver um if para o caso de haver dois players, por agora fica assim
+                    devil = new Devil()
+                    console.log('Novo Jogo')
+                }
+            }
 
-            // canvas.width / 2, 540, 120, 30
-            if (mx >= canvas.width / 2 && mx <= (canvas.width / 2) + 120 && my >= 540 && my <= 570) {
-                //Vai ter que haver um if para o caso de haver dois players, por agora fica assim
-                devil = new Devil()
-                console.log('Novo Jogo')
-            }
         })
     }
     let p = new PowerUp()
@@ -794,11 +845,13 @@ window.onload = function () {
         devil.update()
         devil.show()
 
-        rick.up(5)
-        rick.down(-5)
-        rick.grav()
-        rick.update()
-        rick.show()
+        if (player2) {
+            rick.up(5)
+            rick.down(-5)
+            rick.grav()
+            rick.update()
+            rick.show()
+        }
 
         for (let bola of bolas) {
             bola.show()
@@ -834,12 +887,14 @@ window.onload = function () {
         devil.update()
         devil.show()
 
-        
-        rick.up(5)
-        rick.down(-5)
-        rick.grav()
-        rick.update()
-        rick.show()
+
+        if (player2) {
+            rick.up(5)
+            rick.down(-5)
+            rick.grav()
+            rick.update()
+            rick.show()
+        }
 
         for (let i = 0; i < bolas.length; i++) {
             if (i <= (bolas.length - 1) / 2) {
@@ -950,13 +1005,15 @@ window.onload = function () {
         devil.show()
 
 
-        
-        rick.up(5)
-        rick.down(-5)
-        rick.grav()
-        rick.update()
-        rick.show()
 
+        if (player2) {
+            rick.up(5)
+            rick.down(-5)
+            rick.grav()
+            rick.update()
+            rick.show()
+
+        }
         for (let bola of bolas) {
             bola.show()
             bola.update()
@@ -1011,6 +1068,14 @@ window.onload = function () {
         if (devil.lives >= 1) ctx.drawImage(mortyHead, 50, 535, 25, 25)
         if (devil.lives >= 2) {
             ctx.drawImage(mees, 80, 535, 25, 25)
+        }
+
+        if (player2) {
+            if (rick.lives >= 0) ctx.drawImage(rickhead, 900, 535, 25, 25)
+            if (rick.lives >= 1) ctx.drawImage(rickhead, 930, 535, 25, 25)
+            if (rick.lives >= 2) {
+                ctx.drawImage(mees, 960, 535, 25, 25)
+            }
         }
     }
 
@@ -1142,14 +1207,29 @@ window.onload = function () {
         if (guardar == true) {
             for (let i = 0; i < nomeJog.length; i++) {
                 let sc = 0
+                let sc2 = 0
                 if (devil.lives != 0 && i == 0) {
                     sc = Math.round(getTimePoints(inicioJogo, fimJogo))
                     console.log('Score adicional de Tempo' + sc)
                 }
 
+                if (rick != null && rick.lives != 0 && i == 10) {
+                    sc2 = Math.round(getTimePoints(inicioJogo, fimJogo))
+                    console.log('Score adicional de Tempo' + sc2)
+                }
+
+                let nomeJog1 = nomeJog[i].value
+                if (player2) nomeJog1 += ' *'
                 let jog = new Jogador(nomeJog[i].value, devil.score + sc + devil.lives, fimJogo)
                 console.log(jog)
                 jogadores.push(jog)
+
+                if (player2) { //O asterisco é para se saber quais são os jogadores que jogaram em multiplayer
+                    let jog2 = new Jogador(nomeJog[i].value + ' *', rick.score + sc2 + rick.lives, fimJogo)
+                    console.log(jog2)
+                    jogadores.push(jog2)
+                }
+
                 nomeJog[i].value = ""
                 nomeJog[i].disabled = true
             }
