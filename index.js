@@ -73,7 +73,8 @@ window.onload = function () {
     let stopGame = true
     let text = "PLAYER 2"
 
-
+    let controlsImg = new Image()
+    controlsImg.src = "images/CONTROLS.png"
     let background1 = new Image()
     background1.src = "images/bg6.jpg"
     let background2 = new Image()
@@ -1209,11 +1210,11 @@ window.onload = function () {
         ctx.fillStyle = 'rgba(0, 0, 0, 0.9)'
         ctx.fillRect(0, 0, canvas.width, canvas.height)
         // ctx.drawImage(gameoverImg, 0, 0, gameoverImg.width, gameoverImg.height, 0, 0, canvas.width, canvas.height)
-
+        ctx.drawImage(controlsImg, 0, 0, canvas.width, 500)
         ctx.fillStyle = 'white'
-        ctx.font = "20px Arial";
-        ctx.fillText('text', 20, 525)
-        ctx.fillText('Clica em qualquer tecla para continuar', 55, 590)
+        ctx.font = "25px Arial";
+        ctx.fillText('<PRESS ANY KEY TO GET SCHWIFTY>', 270, 560)
+
     }
 }
 
