@@ -430,9 +430,38 @@ window.onload = function () {
                             }
                         })
                         devil.score += 5
-
                         //Esta linha faz com que a "seta" seja removida quando rebenta uma bola
                         setas.splice(setas.findIndex((xibanga) => xibanga.id == seta.id), 1)
+                        if (this.raio == 30) {
+                            // let lado = 0
+                            bolas.push(new Bola(diengBallx, diengBally, this.raio / 2, 1, true))
+                            bolas.push(new Bola(diengBallx, diengBally, this.raio / 2, -1, true))
+                        }
+                        //As setas só explodirem quando chegam ao "teto" devia ser um power up. IMPORTANTE!!!!!
+                    }
+                }
+            }
+
+            for (let seta of setasRick) {
+                if (seta.x >= this.x - this.raio && seta.x <= this.x + this.raio) {
+                    if (this.y - this.raio >= seta.y && this.y + this.raio <= rick.y) {
+
+                        //Ao entrar aqui é porque a bola tocou em alguma parte da linha
+                        let diengBallx = 0, diengBally = 0
+                        bolas = bolas.filter(bola => {
+
+                            if (bola.id != this.id) {
+                                return true
+                            }
+                            else {
+                                diengBallx = bola.x
+                                diengBally = bola.y
+                                return false
+                            }
+                        })
+                        rick.score += 5
+                        //Esta linha faz com que a "seta" seja removida quando rebenta uma bola
+                        setasRick.splice(setas.findIndex((xibanga) => xibanga.id == seta.id), 1)
                         if (this.raio == 30) {
                             // let lado = 0
                             bolas.push(new Bola(diengBallx, diengBally, this.raio / 2, 1, true))
@@ -541,8 +570,8 @@ window.onload = function () {
         //Lançar Lança
         if (evt.key == ' ' || evt.keyCode == '17') {
             if (setas.length <= devil.nSetas) {
-                console.log('Setas -  ', devil.nSetas)
-                let newArrow = new Seta(devil.x + 45)
+                console.log('Setas -  ', devil)
+                let newArrow = new Seta(devil)
                 setas.push(newArrow)
             }
         }
@@ -551,7 +580,7 @@ window.onload = function () {
             if (evt.key == '1') {
                 if (setasRick.length <= rick.nSetas) {
                     console.log('Setas Rick = ' + setasRick.length)
-                    let newArrow = new Seta(rick.x + 45)
+                    let newArrow = new Seta(rick)
                     setasRick.push(newArrow)
                 }
             }
@@ -642,18 +671,29 @@ window.onload = function () {
             let nBolas = 0
             if (level == 1) {
                 nBolas = 2
-                if (player2) rick.nSetas = 0
+                if (player2) {
+                    rick.nSetas = 0
+                    rick.y = 450
+                }
                 devil.nSetas = 0
             }
             else if (level == 2) {
                 nBolas = 1
-                if (player2) rick.nSetas = 0
+                if (player2) {
+                    rick.nSetas = 0
+                    rick.y = 450
+                }
                 devil.nSetas = 0
+                devil.y = 450
             }
             else if (level == 3) {
                 nBolas = 2
-                if (player2) rick.nSetas = 0
+                if (player2) {
+                    rick.nSetas = 0
+                    rick.y = 450
+                }
                 devil.nSetas = 0
+                devil.y = 450
             }
 
 
@@ -700,6 +740,9 @@ window.onload = function () {
             while (setas.length != 0) {
                 setas.pop()
             }
+            while (setasRick.length != 0) {
+                setasRick.pop()
+            }
 
 
 
@@ -715,17 +758,17 @@ window.onload = function () {
             if (devil.lives >= 1 && (idmorte == 1)) {
                 devil.lives--
                 if (devil.lives > 0) window.requestAnimationFrame(draw)
-                console.log('morty - ' + devil.lives)
-                console.log('arttttttttaaaaaaaaaaaaaa222222222222222222222')
+                // console.log('morty - ' + devil.lives)
+                // console.log('arttttttttaaaaaaaaaaaaaa222222222222222222222')
 
             }
 
             if (rick != null && rick.lives >= 1 && (idmorte == 2)) {
                 rick.lives--
-                console.log('arttttttttaaaaaaaaaaaaaa222222222222222222222')
+                // console.log('arttttttttaaaaaaaaaaaaaa222222222222222222222')
 
                 if (rick.lives > 0) window.requestAnimationFrame(draw)
-                console.log('rick - ' + rick.lives)
+                // console.log('rick - ' + rick.lives)
             }
             moleu = false
 
@@ -740,7 +783,7 @@ window.onload = function () {
             }
 
             if (idmorte == 0) {
-                console.log('arttttttttaaaaaaaaaaaaaa')
+                // console.log('arttttttttaaaaaaaaaaaaaa')
                 window.requestAnimationFrame(draw)
             }
 
@@ -770,9 +813,9 @@ window.onload = function () {
             }
             else if (level == 3) {
                 devil.y = 450
-                if (player2) rick.y = 0
+                if (player2) rick.y = 450
                 nBolas = 0
-                if (player2) rick.nSetas = 0
+                if (player2) rick.nSetas = 450
                 devil.nSetas = 0
                 p2 = new PowerUp()
             }
@@ -862,7 +905,7 @@ window.onload = function () {
                     level = 0
                     ballBounceFloor = 500
                     draw()
-                    
+
                     console.log('Novo Jogo')
                 }
             }
@@ -1062,7 +1105,7 @@ window.onload = function () {
             setasRick[i].arrowRise()
             setasRick[i].max()
         }
-        
+
         devil.up(5)
         devil.down(-5)
         devil.grav()
@@ -1106,7 +1149,7 @@ window.onload = function () {
     function botaoRecomecar() {
 
         //Botão igual aos do menu
-        
+
         ctx.fillStyle = "rgba(50, 255, 86, 0.9)"
         ctx.lineWidth = "4"
         ctx.strokeStyle = "white"
@@ -1182,34 +1225,40 @@ window.onload = function () {
             this.cor = "lime"
             this.id = this.getId()
             this.launchY = boneco.y + boneco.altura
-            this.boneco = boneco
+            this.bonecoid = boneco.id
+            this.pes = boneco.morty.pes
         }
         max() {
             if (level == 2) {
-                if (this.boneco.morty.pes <= 250) {
+                if (this.pes <= 250) {
 
                     if (this.y <= 0) {
 
-                        setas = setas.filter(set => set.id != this.id)
+                        if (this.bonecoid == 1) setas = setas.filter(set => set.id != this.id)
+                        if (this.bonecoid == 2) setasRick = setasRick.filter(set => set.id != this.id)
                     }
 
                 }
                 else {
 
                     if (this.y <= setaRange) {
-                        setas = setas.filter(set => set.id != this.id)
+                        if (this.bonecoid == 1) setas = setas.filter(set => set.id != this.id)
+                        if (this.bonecoid == 2) setasRick = setasRick.filter(set => set.id != this.id)
+
                     }
 
                 }
             }
             else {
                 if (this.y <= 0) {
-                    setas = setas.filter(set => set.id != this.id)
+                    if (this.bonecoid == 1) setas = setas.filter(set => set.id != this.id)
+                    if (this.bonecoid == 2) setasRick = setasRick.filter(set => set.id != this.id)
                 }
 
             }
         }
         draw() {
+            // console.log('atata')
             ctx.save()
             ctx.lineWidth = 6
             ctx.shadowBlur = 15
@@ -1236,7 +1285,12 @@ window.onload = function () {
             this.y -= this.velSeta
         }
         getId() {
-            return setas.length == 0 ? 1 : setas[setas.length - 1].id + 1
+            console.log(this.x)
+            if (this.bonecoid == 1) {
+                return setas.length == 0 ? 1 : setas[setas.length - 1].id + 1
+            } else {
+                return setasRick.length == 0 ? 1 : setasRick[setasRick.length - 1].id + 1
+            }
         }
     }
 
