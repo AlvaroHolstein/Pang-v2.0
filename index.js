@@ -24,7 +24,7 @@ window.onload = function () {
     function confirmarJogs(novoNome) {
         return jogadores.find(a => a.nome.toUpperCase() == novoNome.toUpperCase())
     }
-
+    let comecar = true
     let nSetas = 0
     let keyboardState = {
         left: false,
@@ -66,7 +66,6 @@ window.onload = function () {
 
     let stopGame = true
     let text = "PLAYER 2"
-    let score1 = 0
 
 
     let background1 = new Image()
@@ -158,7 +157,7 @@ window.onload = function () {
             this.altura = 50
             this.lives = 3
             this.keys = keyboardstate
-
+            this.score = 0
             this.gravidade = 0.5
 
             this.aSubir = false
@@ -256,7 +255,7 @@ window.onload = function () {
                     this.x = 300
                     this.y = 450
                     stopGame = true
-                    if (this.lives != 0) score1 = 0
+                    if (this.lives != 0) this.score = 0
                     return true
                 }
 
@@ -407,7 +406,7 @@ window.onload = function () {
                                 return false
                             }
                         })
-                        score1 += 5
+                        devil.score += 5
 
                         //Esta linha faz com que a "seta" seja removida quando rebenta uma bola
                         setas.splice(setas.findIndex((xibanga) => xibanga.id == seta.id), 1)
@@ -538,6 +537,7 @@ window.onload = function () {
     function draw() {
         //Os niveis vão para aqui
         // level = 3
+
         if (level == 0) menu()
         else if (level == 1) {
             nivel1()
@@ -590,15 +590,18 @@ window.onload = function () {
             ctx.fillStyle = 'white'
             ctx.font = "20px Arial";
             ctx.fillText(text, 20, 525)
-            ctx.fillText(score1, 55, 590)
+            ctx.fillText(devil.score, 55, 590)
         }
 
         //O que faz a magia repetir se
         if (!stopGame) {
-            window.requestAnimationFrame(draw)
             if (mostrarAjuda == true && level == 1) {
                 ecraAjuda()
-                // window.requestAnimationFrame(draw)
+            }
+            if (comecar == true) {
+                if (mostrarAjuda == true && level == 1) comecar = false
+                else if (mostrarAjuda == false && level == 1) comecar = true
+                window.requestAnimationFrame(draw)
             }
         }
         else {
@@ -624,7 +627,7 @@ window.onload = function () {
 
                     mostrarCenas(true)
                     fimJogo = performance.now() - inicioJogo
-                    console.log(score1 + Math.round(fimJogo)) //score final
+                    console.log(devil.score + Math.round(fimJogo)) //score final
                     console.log('tempo final - ' + fimJogo)
                     ecraFinalLost()
                     document.getElementById('NomeJogador').focus()
@@ -635,7 +638,7 @@ window.onload = function () {
                     window.requestAnimationFrame(draw)
                     mostrarCenas(true)
                     fimJogo = performance.now() - inicioJogo
-                    console.log(score1 + Math.round(fimJogo))
+                    console.log(devil.score + Math.round(fimJogo))
                     document.getElementById('NomeJogador').focus()
                 }
             }
@@ -679,6 +682,7 @@ window.onload = function () {
                 if (level <= 2) nivelPassado = true
             }
         }
+        // devil.lives = 0
     }
 
     function menu() {
@@ -713,10 +717,16 @@ window.onload = function () {
                 // inicioJogo = performance.now(), não vai fiar aqui por que o jogo só começa realmente quando sair do ecra de ajuda
             }
             if (mx >= 560 && mx <= 660 && my >= 540 && my <= 570) console.log('Player = 2')
+
+            // canvas.width / 2, 540, 120, 30
+            if (mx >= canvas.width / 2 && mx <= (canvas.width / 2) + 120 && my >= 540 && my <= 570) {
+                //Vai ter que haver um if para o caso de haver dois players, por agora fica assim
+                devil = new Devil()
+                console.log('Novo Jogo')
+            }
         })
     }
     let p = new PowerUp()
-    // let corNivel1 = 'rgba('
     function nivel1() {
         ctx.fillStyle = 'black'
         ctx.fillRect(0, 0, canvas.width, canvas.height)
@@ -892,12 +902,39 @@ window.onload = function () {
         }
         p2.powerItUp()
     }
+
+    function botaoRecomecar() {
+
+        //Botão igual aos do menu
+        ctx.fillStyle = "rgba(50, 255, 86, 0.9)"
+        ctx.lineWidth = "4"
+        ctx.strokeStyle = "white"
+        ctx.fillRect(canvas.width / 2, 540, 120, 30)
+        ctx.strokeRect(canvas.width / 2, 540, 120, 30)
+
+        ctx.fillStyle = 'white'
+        ctx.font = "Bold 20px Arial";
+        ctx.fillText('Recomeçar', (canvas.width / 2) + 5, 561)
+        // canvas.addEventListener('click', recomecar)
+        // function recomecar(evt) {
+        //     let mx = evt.pageX - canvas.offsetLeft
+        //     let my = evt.pageY - canvas.offsetTop
+
+        //     if (mx >= 360 && mx <= 460 && my >= 540 && my <= 570) {
+
+
+        //         canvas.removeEventListener('click', )
+        //     }
+        // }
+    }
     function ecraFinalLost() {
         canvas.width = 1000
         canvas.height = 600
         ctx.fillStyle = 'purple'
         ctx.fillRect(0, 0, canvas.width, canvas.height)
         ctx.drawImage(gameoverImg, 0, 0, gameoverImg.width, gameoverImg.height, 0, 0, canvas.width, canvas.height)
+
+        botaoRecomecar()
     }
 
     function ecraFinalWin() {
@@ -1045,11 +1082,11 @@ window.onload = function () {
             for (let i = 0; i < nomeJog.length; i++) {
                 let sc = 0
                 if (devil.lives != 0 && i == 0) {
-                    sc = Math.round(getTimePoints(fimJogo))
+                    sc = Math.round(getTimePoints(inicioJogo, fimJogo))
                     console.log('Score adicional de Tempo' + sc)
                 }
 
-                let jog = new Jogador(nomeJog[i].value, score1 + sc + devil.lives, fimJogo)
+                let jog = new Jogador(nomeJog[i].value, devil.score + sc + devil.lives, fimJogo)
                 console.log(jog)
                 jogadores.push(jog)
                 nomeJog[i].value = ""
@@ -1096,8 +1133,12 @@ window.onload = function () {
     function a() { //Auxiliar ecrã ajuda
         mostrarAjuda = false
         console.log('Mostrar Ajuda - - - ' + mostrarAjuda)
+        comecar = true
+        window.requestAnimationFrame(draw)
+        console.log('Comecar - ' + comecar)
         // console.log(this)
         inicioJogo = performance.now()
+
         window.removeEventListener('keypress', a)
     }
 
