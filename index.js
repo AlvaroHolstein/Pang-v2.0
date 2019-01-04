@@ -25,7 +25,7 @@ window.onload = function () {
         return jogadores.find(a => a.nome.toUpperCase() == novoNome.toUpperCase())
     }
     let comecar = true
-    let nSetas = 0
+    // let nSetas = 0
     let keyboardState = {
         left: false,
         right: false,
@@ -170,6 +170,7 @@ window.onload = function () {
             this.keys = keyboardstate
             this.score = 0
             this.gravidade = 0.5
+            this.nSetas = 0
 
             // this.row = 2
             // this.controler = 1
@@ -271,8 +272,8 @@ window.onload = function () {
                     this.x = 300
                     this.y = 450
                     stopGame = true
-                    console.log('ata')
-                    console.log(this.id)
+                    // console.log('ata')
+                    // console.log(this.id)
                     if (this.lives != 0) this.score = 0
                     return true
                 }
@@ -333,6 +334,7 @@ window.onload = function () {
 
 
     let devil = new Devil()
+    // console.log(devil.lives)
     devil.id = 1
     let rick = null
     // let rick = new Devil(keyboardStateRick, img2)
@@ -477,10 +479,18 @@ window.onload = function () {
 
         powerItUp() {
             // drawLine(devil.morty.altura, false)
-            if (devil.centro.x >= this.x && devil.centro.x <= this.x + this.w && this.y >= devil.morty.altura && this.on == false) {
-                nSetas = 2
+            if (devil.centro.x >= this.x && devil.centro.x <= this.x + this.w && this.y >= devil.morty.altura && this.on == false && this.dead == false) {
+                devil.nSetas = 2
                 this.on = true
                 this.dead = true
+            }
+
+            if (player2) {
+                if (rick.centro.x >= this.x && rick.centro.x <= this.x + this.w && this.y >= rick.morty.altura && this.on == false && this.dead == false) {
+                    rick.nSetas = 2
+                    this.on = true
+                    this.dead = true
+                }
             }
 
             if (this.on) {
@@ -490,7 +500,8 @@ window.onload = function () {
                 else {
                     this.cont = 0
                     this.on = false
-                    nSetas = 0 //Esta parte está a funcionar
+                    if (player2) rick.nSetas = 0
+                    devil.nSetas = 0
                 }
             }
         }
@@ -528,8 +539,9 @@ window.onload = function () {
         }
 
         //Lançar Lança
-        if (evt.key == ' ' || evt.key == 'control') {
-            if (setas.length <= nSetas) {
+        if (evt.key == ' ' || evt.keyCode == '17') {
+            if (setas.length <= devil.nSetas) {
+                console.log('Setas -  ', devil.nSetas)
                 let newArrow = new Seta(devil.x + 45)
                 setas.push(newArrow)
             }
@@ -537,9 +549,10 @@ window.onload = function () {
 
         if (player2) {
             if (evt.key == '1') {
-                if (setas.length <= nSetas) {
+                if (setasRick.length <= rick.nSetas) {
+                    console.log('Setas Rick = ' + setasRick.length)
                     let newArrow = new Seta(rick.x + 45)
-                    setas.push(newArrow)
+                    setasRick.push(newArrow)
                 }
             }
         }
@@ -578,7 +591,7 @@ window.onload = function () {
     }
     document.addEventListener('keyup', onKeyUp, false)
     //------------------------------------------------------------------
-    let consoles = false
+    // let consoles = false
     let nivelPassado = false
     let fimJogo = 0
     let continuar = false
@@ -594,11 +607,13 @@ window.onload = function () {
         }
     }
     let idmorte = 0
+    let moleu = false
     //O que faz a magia continuar
+    // level = 3
     function draw() {
         //Os niveis vão para aqui
-        // level = 3
 
+        // if (level == 3) level = 3
         if (level == 0) menu()
         else if (level == 1) {
             nivel1()
@@ -627,15 +642,18 @@ window.onload = function () {
             let nBolas = 0
             if (level == 1) {
                 nBolas = 2
-                nSetas = 0
+                if (player2) rick.nSetas = 0
+                devil.nSetas = 0
             }
             else if (level == 2) {
                 nBolas = 1
-                nSetas = 0
+                if (player2) rick.nSetas = 0
+                devil.nSetas = 0
             }
             else if (level == 3) {
                 nBolas = 2
-                devil.y = 450
+                if (player2) rick.nSetas = 0
+                devil.nSetas = 0
             }
 
 
@@ -691,32 +709,44 @@ window.onload = function () {
                 boss.y = 10
                 boss.vidas = 5
                 // if (level == 1) p.y = 0  
-                window.requestAnimationFrame(draw)
+                // window.requestAnimationFrame(draw)
+            }
+
+            if (devil.lives >= 1 && (idmorte == 1)) {
+                devil.lives--
+                if (devil.lives > 0) window.requestAnimationFrame(draw)
+                console.log('morty - ' + devil.lives)
+                console.log('arttttttttaaaaaaaaaaaaaa222222222222222222222')
 
             }
-            
-            if (devil.lives == 0 && mostrarAjuda == false) {
 
+            if (rick != null && rick.lives >= 1 && (idmorte == 2)) {
+                rick.lives--
+                console.log('arttttttttaaaaaaaaaaaaaa222222222222222222222')
+
+                if (rick.lives > 0) window.requestAnimationFrame(draw)
+                console.log('rick - ' + rick.lives)
+            }
+            moleu = false
+
+            if (rick != null && rick.lives == 0) moleu = true
+
+            if ((devil.lives == 0 || moleu == true) && mostrarAjuda == false) {
+                console.log(devil.lives)
                 mostrarCenas(true)
                 fimJogo = performance.now() - inicioJogo
-                console.log(devil.score + Math.round(fimJogo)) //score final
-                console.log('tempo final - ' + fimJogo)
                 ecraFinalLost()
                 document.getElementById('NomeJogador').focus()
             }
 
-            if (devil.lives > 0 && (idmorte == 1 || idmorte == 0)) {
-                devil.lives--
+            if (idmorte == 0) {
+                console.log('arttttttttaaaaaaaaaaaaaa')
                 window.requestAnimationFrame(draw)
-                if(player2) console.log(rick.lives)
-            }
-            if (rick != null && rick.lives > 0 && (idmorte == 2 || idmorte == 0)) {
-                rick.lives--
-                window.requestAnimationFrame(draw)
-                console.log('ataaaaaaaaaaaaaaaaaaaaaaaaa - ' + rick.lives)
             }
 
-            if (boss.vidas == 0) {
+
+
+            if (boss.vidas == 0 && level == 3) {
                 level++
                 window.requestAnimationFrame(draw)
                 mostrarCenas(true)
@@ -728,18 +758,22 @@ window.onload = function () {
             let nBolas = 0
             if (level == 1 || level == 0) {
                 nBolas = 1
-                nSetas = 0
+                if (player2) rick.nSetas = 0
+                devil.nSetas = 0
                 p = new PowerUp()
             }
             else if (level == 2) {
                 nBolas = 1
-                nSetas = 0
+                if (player2) rick.nSetas = 0
+                devil.nSetas = 0
                 p1 = new PowerUp()
             }
             else if (level == 3) {
                 devil.y = 450
+                if (player2) rick.y = 0
                 nBolas = 0
-                nSetas = 0
+                if (player2) rick.nSetas = 0
+                devil.nSetas = 0
                 p2 = new PowerUp()
             }
 
@@ -811,6 +845,8 @@ window.onload = function () {
                     console.log('Player = 2')
                     level = 1;
                     rick = new Devil(keyboardStateRick, img2)
+                    // rick.lives = 2
+                    console.log(rick.lives)
                     rick.id = 2
                     player2 = true
                 }
@@ -839,6 +875,12 @@ window.onload = function () {
             setas[i].arrowRise()
             setas[i].max()
         }
+        for (let i = 0; i < setasRick.length; i++) {
+            setasRick[i].draw()
+            setasRick[i].arrowRise()
+            setasRick[i].max()
+        }
+
         devil.up(5)
         devil.down(-5)
         devil.grav()
@@ -865,6 +907,7 @@ window.onload = function () {
             // console.log(rick)
         }
         p.powerItUp()
+
     }
 
     let p1 = new PowerUp()
@@ -881,6 +924,12 @@ window.onload = function () {
             setas[i].arrowRise()
             setas[i].max()
         }
+        for (let i = 0; i < setasRick.length; i++) {
+            setasRick[i].draw()
+            setasRick[i].arrowRise()
+            setasRick[i].max()
+        }
+
         devil.up(5)
         devil.down(-5)
         devil.grav()
@@ -908,13 +957,6 @@ window.onload = function () {
             bolas[i].update()
             bolas[i].colide()
         }
-
-
-        /*for (let bola of bolas) {
-            bola.show()
-            bola.update()
-            bola.colide(devil)
-        }*/
 
         if (p1.dead == false) {
             p1.show()
@@ -986,18 +1028,34 @@ window.onload = function () {
     let boss = new Boss(bighead.width, bighead.height)
 
     let p2 = new PowerUp()
+
     function nivel3() {
+        let inicioVidas = 780
         ballBounceFloor = 500
         ctx.fillStyle = 'black'
         ctx.fillRect(0, 0, canvas.width, canvas.height)
         ctx.drawImage(background3, 0, 0, background3.width, background3.height, 0, 0, canvas.width, 500)
+
+        ctx.fillStyle = 'white'
+        ctx.fillRect(780, 510, 50, 10)
+        for (let i = 0; i < boss.vidas; i++) {
+            ctx.fillStyle = 'green'
+            ctx.fillRect(inicioVidas, 511, 10, 9)
+            inicioVidas += 10
+        }
+
 
         for (let i = 0; i < setas.length; i++) {
             setas[i].draw()
             setas[i].arrowRise()
             setas[i].max()
         }
-
+        for (let i = 0; i < setasRick.length; i++) {
+            setasRick[i].draw()
+            setasRick[i].arrowRise()
+            setasRick[i].max()
+        }
+        
         devil.up(5)
         devil.down(-5)
         devil.grav()
@@ -1028,8 +1086,14 @@ window.onload = function () {
         if (p2.dead == false) {
             p2.show()
             p2.update()
+            console.log('not yet')
+        }
+        else {
+            console.log('morreu')
         }
         p2.powerItUp()
+
+
     }
 
     function botaoRecomecar() {
@@ -1051,7 +1115,7 @@ window.onload = function () {
         ctx.fillStyle = 'purple'
         ctx.fillRect(0, 0, canvas.width, canvas.height)
         ctx.drawImage(gameoverImg, 0, 0, gameoverImg.width, gameoverImg.height, 0, 0, canvas.width, canvas.height)
-
+        window.cancelAnimationFrame(draw)
         botaoRecomecar()
     }
 
@@ -1064,16 +1128,16 @@ window.onload = function () {
     }
     //Mostrar Vidas
     function vidas() {
-        if (devil.lives >= 0) ctx.drawImage(mortyHead, 20, 535, 25, 25)
-        if (devil.lives >= 1) ctx.drawImage(mortyHead, 50, 535, 25, 25)
-        if (devil.lives >= 2) {
+        if (devil.lives >= 1) ctx.drawImage(mortyHead, 20, 535, 25, 25)
+        if (devil.lives >= 2) ctx.drawImage(mortyHead, 50, 535, 25, 25)
+        if (devil.lives >= 3) {
             ctx.drawImage(mees, 80, 535, 25, 25)
         }
 
         if (player2) {
-            if (rick.lives >= 0) ctx.drawImage(rickhead, 900, 535, 25, 25)
-            if (rick.lives >= 1) ctx.drawImage(rickhead, 930, 535, 25, 25)
-            if (rick.lives >= 2) {
+            if (rick.lives >= 1) ctx.drawImage(rickhead, 900, 535, 25, 25)
+            if (rick.lives >= 2) ctx.drawImage(rickhead, 930, 535, 25, 25)
+            if (rick.lives >= 3) {
                 ctx.drawImage(mees, 960, 535, 25, 25)
             }
         }
@@ -1098,6 +1162,7 @@ window.onload = function () {
 
 
     let setas = [] //Array que vai guardar as setas
+    let setasRick = []
     //A seta
     class Seta {
         constructor(x) {
@@ -1119,7 +1184,6 @@ window.onload = function () {
                     }
 
                 }
-
                 else {
 
                     if (this.y <= setaRange) {
@@ -1127,8 +1191,6 @@ window.onload = function () {
                     }
 
                 }
-
-
             }
             else {
                 if (this.y <= 0) {
