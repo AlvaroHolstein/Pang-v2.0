@@ -894,21 +894,31 @@ window.onload = function () {
                     player2 = true
                 }
             }
-            if (boss.vidas == 0 || devil.lives == 0) {
+
+            let cont = false
+            if (player2 == true && rick.lives == 0) {
+                cont = true
+                console.log(rick.lives)
+            }
+            if (boss.vidas == 0 || devil.lives == 0 || cont == true) {
                 // canvas.width / 2, 540, 120, 30
                 if (mx >= 440 && mx <= 560 && my >= 495 && my <= 525) {
                     //Vai ter que haver um if para o caso de haver dois players, por agora fica assim
                     ctx.fillRect(440, 495, 120, 30)
                     ctx.strokeRect(440, 495, 120, 30)
                     masterContainer.style.display = 'none'
-                    devil = new Devil()
+                    // devil = new Devil()
                     level = 0
                     ballBounceFloor = 500
+                    nivelPassado = false
+                    player2 = false
+
                     draw()
 
                     console.log('Novo Jogo')
                 }
             }
+            cont = false
 
         })
     }
