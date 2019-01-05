@@ -337,6 +337,8 @@ window.onload = function () {
     // console.log(devil.lives)
     devil.id = 1
     let rick = null
+    let containernome = document.getElementById('containerNome')
+
     // let rick = new Devil(keyboardStateRick, img2)
     let platform = new Platform()
     let escada = new Escada(100, 500, 30, 250)
@@ -442,32 +444,34 @@ window.onload = function () {
                 }
             }
 
-            for (let seta of setasRick) {
-                if (seta.x >= this.x - this.raio && seta.x <= this.x + this.raio) {
-                    if (this.y - this.raio >= seta.y && this.y + this.raio <= rick.y) {
+            if (player2) {
+                for (let seta of setasRick) {
+                    if (seta.x >= this.x - this.raio && seta.x <= this.x + this.raio) {
+                        if (this.y - this.raio >= seta.y && this.y + this.raio <= rick.y) {
 
-                        //Ao entrar aqui é porque a bola tocou em alguma parte da linha
-                        let diengBallx = 0, diengBally = 0
-                        bolas = bolas.filter(bola => {
+                            //Ao entrar aqui é porque a bola tocou em alguma parte da linha
+                            let diengBallx = 0, diengBally = 0
+                            bolas = bolas.filter(bola => {
 
-                            if (bola.id != this.id) {
-                                return true
+                                if (bola.id != this.id) {
+                                    return true
+                                }
+                                else {
+                                    diengBallx = bola.x
+                                    diengBally = bola.y
+                                    return false
+                                }
+                            })
+                            rick.score += 5
+                            //Esta linha faz com que a "seta" seja removida quando rebenta uma bola
+                            setasRick.splice(setas.findIndex((xibanga) => xibanga.id == seta.id), 1)
+                            if (this.raio == 30) {
+                                // let lado = 0
+                                bolas.push(new Bola(diengBallx, diengBally, this.raio / 2, 1, true))
+                                bolas.push(new Bola(diengBallx, diengBally, this.raio / 2, -1, true))
                             }
-                            else {
-                                diengBallx = bola.x
-                                diengBally = bola.y
-                                return false
-                            }
-                        })
-                        rick.score += 5
-                        //Esta linha faz com que a "seta" seja removida quando rebenta uma bola
-                        setasRick.splice(setas.findIndex((xibanga) => xibanga.id == seta.id), 1)
-                        if (this.raio == 30) {
-                            // let lado = 0
-                            bolas.push(new Bola(diengBallx, diengBally, this.raio / 2, 1, true))
-                            bolas.push(new Bola(diengBallx, diengBally, this.raio / 2, -1, true))
+                            //As setas só explodirem quando chegam ao "teto" devia ser um power up. IMPORTANTE!!!!!
                         }
-                        //As setas só explodirem quando chegam ao "teto" devia ser um power up. IMPORTANTE!!!!!
                     }
                 }
             }
@@ -570,7 +574,7 @@ window.onload = function () {
         //Lançar Lança
         if (evt.key == ' ' || evt.keyCode == '17') {
             if (setas.length <= devil.nSetas) {
-                console.log('Setas -  ', devil)
+                // console.log('Setas -  ', devil)
                 let newArrow = new Seta(devil)
                 setas.push(newArrow)
             }
@@ -579,7 +583,7 @@ window.onload = function () {
         if (player2) {
             if (evt.key == '1') {
                 if (setasRick.length <= rick.nSetas) {
-                    console.log('Setas Rick = ' + setasRick.length)
+                    // console.log('Setas Rick = ' + setasRick.length)
                     let newArrow = new Seta(rick)
                     setasRick.push(newArrow)
                 }
@@ -627,16 +631,29 @@ window.onload = function () {
 
     let masterContainer = document.getElementById('masterContainer')
     let alerta = document.getElementById('alerta')
-
     function mostrarCenas(erro) {
         masterContainer.style.display = 'block'
         // console.log(erro)
-        if (!erro) {
-            alerta.style.hidden = 'visible'
+        // if (!erro) {
+        //     alerta.style.hidden = 'visible'
+        // }
+
+        if (player2) {
+            // console.log('ata')
+            let label = document.createElement('label')
+            label.setAttribute('for', 'nomeJOGid')
+            label.innerHTML = 'Name: '
+            let input = document.createElement('input')
+            input.setAttribute('id', 'nomeJOGid')
+            input.className = 'nomeJog'
+            input.setAttribute('placeholder', 'digita o teu nome')
+            containernome.appendChild(label)
+            containernome.appendChild(input)
         }
     }
     let idmorte = 0
     let moleu = false
+    let playagain = false
     //O que faz a magia continuar
     // level = 3
     function draw() {
@@ -665,7 +682,11 @@ window.onload = function () {
         if (nivelPassado == true) {
             console.log('Passas te de nivel')
             nivelPassado = false
-            if (level <= 4) level++
+            if (level <= 4) {
+                level++
+            }
+            if (playagain == true) level = 1
+            playagain = false
             console.log('Nivel - ' + level)
 
             let nBolas = 0
@@ -730,6 +751,13 @@ window.onload = function () {
             if (comecar == true) {
                 if (mostrarAjuda == true && level == 1) comecar = false
                 else if (mostrarAjuda == false && level == 1) comecar = true
+                // if (mostrarAjuda == true) {
+                // console.log('ata')
+                // if (playagain == false) {
+
+                //     playagain = true
+                // }
+                // }
                 window.requestAnimationFrame(draw)
             }
         }
@@ -746,11 +774,8 @@ window.onload = function () {
 
 
 
-            if (boss.vidas > 0 && level == 3) {
-                boss.number = 0
-                boss.x = 50
-                boss.y = 10
-                boss.vidas = 5
+            if (level == 3 && boss.vidas > 0) {
+                boss = new Boss(bighead.width, bighead.height)
                 // if (level == 1) p.y = 0  
                 // window.requestAnimationFrame(draw)
             }
@@ -759,13 +784,13 @@ window.onload = function () {
                 devil.lives--
                 if (devil.lives > 0) window.requestAnimationFrame(draw)
                 // console.log('morty - ' + devil.lives)
-                // console.log('arttttttttaaaaaaaaaaaaaa222222222222222222222')
+                console.log('morty start')
 
             }
 
             if (rick != null && rick.lives >= 1 && (idmorte == 2)) {
                 rick.lives--
-                // console.log('arttttttttaaaaaaaaaaaaaa222222222222222222222')
+                console.log('rick start')
 
                 if (rick.lives > 0) window.requestAnimationFrame(draw)
                 // console.log('rick - ' + rick.lives)
@@ -775,26 +800,27 @@ window.onload = function () {
             if (rick != null && rick.lives == 0) moleu = true
 
             if ((devil.lives == 0 || moleu == true) && mostrarAjuda == false) {
-                console.log(devil.lives)
+                // console.log(devil.lives)
                 mostrarCenas(true)
                 fimJogo = performance.now() - inicioJogo
                 ecraFinalLost()
                 document.getElementById('NomeJogador').focus()
             }
 
-            if (idmorte == 0) {
-                // console.log('arttttttttaaaaaaaaaaaaaa')
+            if (idmorte == 0 && playagain == false) {
                 window.requestAnimationFrame(draw)
+                console.log('ata1')
             }
 
 
 
-            if (boss.vidas == 0 && level == 3) {
+            if (level == 3 && boss.vidas == 0) {
                 level++
                 window.requestAnimationFrame(draw)
+                console.log('ata2')
                 mostrarCenas(true)
                 fimJogo = performance.now() - inicioJogo
-                console.log(devil.score + Math.round(fimJogo))
+                // console.log(devil.score + Math.round(fimJogo))
                 document.getElementById('NomeJogador').focus()
             }
 
@@ -831,6 +857,12 @@ window.onload = function () {
         if (bolas.length == 0) {
             if (level == 0) {
                 if (continuar == true) nivelPassado = true
+                if (playagain == true) nivelPassado = false
+
+                console.log(bolas.length)
+                console.log(nivelPassado)
+                console.log(playagain)
+                console.log(continuar)
             }
             else {
 
@@ -838,10 +870,9 @@ window.onload = function () {
                     nivelPassado = true
                 }
 
-                if (level <= 2) nivelPassado = true
+                if (level <= 2 && playagain == false) nivelPassado = true
             }
         }
-        // devil.lives = 0
     }
 
     let ad = new Image()
@@ -882,6 +913,10 @@ window.onload = function () {
                 if (mx >= 360 && mx <= 460 && my >= 540 && my <= 570) {
                     console.log('Player = 1')
                     level = 1;
+                    nivelPassado = false
+                    devil.id = 1
+                    nivelPassado = false
+
                     // inicioJogo = performance.now(), não vai fiar aqui por que o jogo só começa realmente quando saair do ecra de ajuda
                 }
                 if (mx >= 560 && mx <= 660 && my >= 540 && my <= 570) {
@@ -891,6 +926,8 @@ window.onload = function () {
                     // rick.lives = 2
                     console.log(rick.lives)
                     rick.id = 2
+                    nivelPassado = false
+
                     player2 = true
                 }
             }
@@ -900,18 +937,29 @@ window.onload = function () {
                 cont = true
                 console.log(rick.lives)
             }
-            if (boss.vidas == 0 || devil.lives == 0 || cont == true) {
+            let cont2 = false
+            if (boss != null && boss.vidas == 0 && level == 4) {
+                cont2 = true
+                console.log('Bosssssssssssssssssssss')
+            }
+            if (cont2 == true || devil.lives == 0 || cont == true) {
                 // canvas.width / 2, 540, 120, 30
                 if (mx >= 440 && mx <= 560 && my >= 495 && my <= 525) {
                     //Vai ter que haver um if para o caso de haver dois players, por agora fica assim
                     ctx.fillRect(440, 495, 120, 30)
                     ctx.strokeRect(440, 495, 120, 30)
                     masterContainer.style.display = 'none'
-                    // devil = new Devil()
+                    devil = new Devil()
                     level = 0
                     ballBounceFloor = 500
                     nivelPassado = false
                     player2 = false
+                    playagain = true
+                    boss = null
+                    rick = null
+                    comecar = true
+                    stopGame = false
+                    // idmorte = 0
 
                     draw()
 
@@ -1036,7 +1084,7 @@ window.onload = function () {
             this.count = 0 //Vai determinar de quanto em quanto tempo lança bolas
             this.number = 0
             this.lado = l //determina o lado para que as bolas vão ser lançadas
-            this.vidas = 5 //A partir das duas devia fazer uma cena diferentes
+            this.vidas = 4 //A partir das duas devia fazer uma cena diferentes
         }
 
         show() {
@@ -1054,7 +1102,7 @@ window.onload = function () {
             if (this.count >= 300 && this.number <= 4) {
                 this.count = 0
                 this.number++
-                console.log(this.number)
+                // console.log(this.number)
                 for (let i = 0; i <= 1; i++) {
                     this.lado *= -1
                     bolas.push(new Bola(this.x, this.y, 20, this.lado))
@@ -1082,14 +1130,36 @@ window.onload = function () {
                     }
                 }
             }
+
+            if (player2) {
+                for (let i = 0; i < setasRick.length; i++) {
+                    if (setasRick[i].x >= this.x && setasRick[i].x <= this.x + this.width
+                        &&
+                        setasRick[i].y >= this.y && setasRick[i].y <= this.y + this.height) {
+                        if (this.vidas >= 2) {
+                            setasRick.splice(i, 1)
+                            // console.log(this.vidas)
+                            this.vidas--
+                        }
+
+                        if (bolas.length == 0 && this.number == 5) {
+                            setasRick.splice(i, 1)
+                            // console.log(this.vidas)
+                            this.vidas--
+                            if (this.vidas == 0) stopGame = true
+                        }
+                    }
+                }
+            }
             if (this.vidas == 0) return true;
         }
     }
-    let boss = new Boss(bighead.width, bighead.height)
+    let boss = null
 
     let p2 = new PowerUp()
 
     function nivel3() {
+        if (boss == null) boss = new Boss(bighead.width, bighead.height)
         let inicioVidas = 780
         ballBounceFloor = 500
         ctx.fillStyle = 'black'
@@ -1146,10 +1216,10 @@ window.onload = function () {
         if (p2.dead == false) {
             p2.show()
             p2.update()
-            console.log('not yet')
+            // console.log('not yet')
         }
         else {
-            console.log('morreu')
+            // console.log('morreu')
         }
         p2.powerItUp()
 
@@ -1295,7 +1365,7 @@ window.onload = function () {
             this.y -= this.velSeta
         }
         getId() {
-            console.log(this.x)
+            // console.log(this.x)
             if (this.bonecoid == 1) {
                 return setas.length == 0 ? 1 : setas[setas.length - 1].id + 1
             } else {
@@ -1349,16 +1419,17 @@ window.onload = function () {
                     console.log('Score adicional de Tempo' + sc)
                 }
 
-                if (rick != null && rick.lives != 0 && i == 10) {
+                if (rick != null && rick.lives != 0 && i == 1) {
                     sc2 = Math.round(getTimePoints(inicioJogo, fimJogo))
                     console.log('Score adicional de Tempo' + sc2)
+
+                    let nomeJog1 = nomeJog[i].value
+                    if (player2) nomeJog1 += ' *'
+                    let jog = new Jogador(nomeJog[i].value, devil.score + sc + devil.lives, fimJogo)
+                    console.log(jog)
+                    jogadores.push(jog)
                 }
 
-                let nomeJog1 = nomeJog[i].value
-                if (player2) nomeJog1 += ' *'
-                let jog = new Jogador(nomeJog[i].value, devil.score + sc + devil.lives, fimJogo)
-                console.log(jog)
-                jogadores.push(jog)
 
                 if (player2) { //O asterisco é para se saber quais são os jogadores que jogaram em multiplayer
                     let jog2 = new Jogador(nomeJog[i].value + ' *', rick.score + sc2 + rick.lives, fimJogo)
@@ -1398,7 +1469,7 @@ window.onload = function () {
             }
             localStorage.setItem('jogs', JSON.stringify(jogadores))
         } else {
-            mostrarCenas(true)
+            // mostrarCenas(true)
         }
     })
 
