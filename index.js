@@ -945,8 +945,9 @@ window.onload = function () {
             if (cont2 == true || devil.lives == 0 || cont == true) {
                 // canvas.width / 2, 540, 120, 30
                 if (mx >= 440 && mx <= 560 && my >= 495 && my <= 525) {
+                    restart()
                     //Vai ter que haver um if para o caso de haver dois players, por agora fica assim
-                    ctx.fillRect(440, 495, 120, 30)
+                    /*ctx.fillRect(440, 495, 120, 30)
                     ctx.strokeRect(440, 495, 120, 30)
                     masterContainer.style.display = 'none'
                     devil = new Devil()
@@ -963,7 +964,7 @@ window.onload = function () {
 
                     draw()
 
-                    console.log('Novo Jogo')
+                    console.log('Novo Jogo')*/
                 }
             }
             cont = false
@@ -1502,6 +1503,10 @@ window.onload = function () {
         ctx.font = "25px Arial";
         ctx.fillText('<PRESS ANY KEY TO GET SCHWIFTY>', 270, 560)
 
+    }
+
+    function restart() {
+        location.reload()
     }
 }
 
