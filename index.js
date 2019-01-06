@@ -71,7 +71,8 @@ window.onload = function () {
     let jogos = []
 
     let stopGame = true
-    let text = "PLAYER 2"
+    let text = "PLAYER I"
+    let text2 = "PLAYER II"
     let player2 = false
     let rickhead = new Image()
     rickhead.src = "images/RICKHEAD.png"
@@ -699,7 +700,7 @@ window.onload = function () {
 
             let nBolas = 0
             if (level == 1) {
-                nBolas = 2
+                nBolas = 3
                 if (player2) {
                     rick.nSetas = 0
                     rick.y = 450
@@ -707,7 +708,7 @@ window.onload = function () {
                 devil.nSetas = 0
             }
             else if (level == 2) {
-                nBolas = 1
+                nBolas = 4
                 if (player2) {
                     rick.nSetas = 0
                     rick.y = 450
@@ -753,7 +754,7 @@ window.onload = function () {
                 if (rick.score == 0 || stopGame == true) scoreR = scores.rick
                 ctx.fillStyle = 'white'
                 ctx.font = "20px Arial";
-                ctx.fillText(text, 895, 525)
+                ctx.fillText(text2, 895, 525)
                 ctx.fillText(rick.score + scores.rick, 935, 590)
             }
         }
@@ -841,13 +842,13 @@ window.onload = function () {
 
             let nBolas = 0
             if (level == 1 || level == 0) {
-                nBolas = 1
+                nBolas = 3
                 if (player2) rick.nSetas = 0
                 devil.nSetas = 0
                 p = new PowerUp()
             }
             else if (level == 2) {
-                nBolas = 1
+                nBolas = 4
                 if (player2) rick.nSetas = 0
                 devil.nSetas = 0
                 p1 = new PowerUp()
@@ -909,7 +910,7 @@ window.onload = function () {
         // ctx.font = "Bold 10px Arial";
         // ctx.fillText('All rights reserved to Adult Swim', 410, 500)
 
-        ctx.drawImage(ad, 410, 500);
+        ctx.drawImage(ad, 183, 500);
 
         ctx.fillStyle = 'white'
         ctx.font = "Bold 20px Arial";
@@ -992,6 +993,12 @@ window.onload = function () {
         ctx.fillRect(0, 0, canvas.width, canvas.height)
         ctx.drawImage(background1, 0, 0, background1.width, background1.height, 0, 0, canvas.width, 500)
 
+        ctx.fillStyle = 'white'
+        ctx.font = "20px Arial";
+        ctx.fillText("LEVEL 1", 450, 525)
+        ctx.font = "Italic 18px Arial";
+        ctx.fillText('"Please, you need no hands to get through this"',302,545)
+        
 
 
         for (let i = 0; i < setas.length; i++) {
@@ -1039,6 +1046,13 @@ window.onload = function () {
         ctx.fillStyle = 'black'
         ctx.fillRect(0, 0, canvas.width, canvas.height)
         ctx.drawImage(background2, 0, 0, background2.width, background2.height, 0, 0, canvas.width, 500)
+
+        ctx.fillStyle = 'white'
+        ctx.font = "20px Arial";
+        ctx.fillText("LEVEL 2", 450, 525)
+        ctx.font = "Italic 18px Arial";
+        ctx.fillText('"Whoooo, they come from everywhere!"',330,545)
+
 
         platform.show()
         escada.show()
@@ -1189,18 +1203,20 @@ window.onload = function () {
     let p2 = new PowerUp()
 
     function nivel3() {
+
+
         if (boss == null) boss = new Boss(bighead, bighead.width, bighead.height)
-        let inicioVidas = 780
+        let inicioVidas = 450
         ballBounceFloor = 500
         ctx.fillStyle = 'black'
         ctx.fillRect(0, 0, canvas.width, canvas.height)
         ctx.drawImage(background3, 0, 0, background3.width, background3.height, 0, 0, canvas.width, 500)
 
         ctx.fillStyle = 'white'
-        ctx.fillRect(780, 510, 80, 15)
+        ctx.fillRect(inicioVidas, 559, 80, 15)
         for (let i = 0; i < boss.vidas; i++) {
             ctx.fillStyle = 'green'
-            ctx.fillRect(inicioVidas, 511, 20, 14)
+            ctx.fillRect(inicioVidas, 560, 20, 14)//511
             inicioVidas += 20
         }
 
@@ -1215,6 +1231,16 @@ window.onload = function () {
             setasRick[i].arrowRise()
             setasRick[i].max()
         }
+
+        ctx.fillStyle = 'white'
+        ctx.font = "20px Arial";
+        ctx.fillText("LEVEL 2", 450, 525)
+        ctx.font = "Italic 18px Arial";
+        ctx.fillText('"SHOW ME WHAT YOU GOT!"',370,545)
+
+        ctx.fillStyle = 'white'
+        ctx.font = "10px Arial";
+        ctx.fillText("Big Head Health", 454, 583)
 
         devil.up(5)
         devil.down(-5)
@@ -1294,14 +1320,14 @@ window.onload = function () {
         if (devil.lives >= 1) ctx.drawImage(mortyHead, 20, 535, 25, 25)
         if (devil.lives >= 2) ctx.drawImage(mortyHead, 50, 535, 25, 25)
         if (devil.lives >= 3) {
-            ctx.drawImage(mees, 80, 535, 25, 25)
+            ctx.drawImage(mortyHead, 80, 535, 25, 25)
         }
 
         if (player2) {
             if (rick.lives >= 1) ctx.drawImage(rickhead, 900, 535, 25, 25)
             if (rick.lives >= 2) ctx.drawImage(rickhead, 930, 535, 25, 25)
             if (rick.lives >= 3) {
-                ctx.drawImage(mees, 960, 535, 25, 25)
+                ctx.drawImage(rickhead, 960, 535, 25, 25)
             }
         }
     }
