@@ -171,7 +171,7 @@ window.onload = function () {
             this.score = 0
             this.gravidade = 0.5
             this.nSetas = 0
-
+            this.scorePerLevel = 0
             // this.row = 2
             // this.controler = 1
             // this.countFrame = 0
@@ -369,7 +369,6 @@ window.onload = function () {
                 ctx.fillStyle = ctx.createPattern(space, "repeat")
                 ctx.strokeStyle = "black"
                 ctx.lineWidth = "2"
-
             }
 
             ctx.save()
@@ -481,6 +480,8 @@ window.onload = function () {
         }
     }
 
+    let pw = new Image()
+    pw.src = "images/powerup1.png"
     class PowerUp {
         constructor() { //Vai ser um power up de setas
             this.y = 0
@@ -495,8 +496,7 @@ window.onload = function () {
         }
 
         show() {
-            ctx.fillStyle = 'red'
-            ctx.fillRect(this.x, this.y, this.w, this.h)
+            ctx.drawImage(pw, this.x, this.y, this.w, this.h)
 
             if (this.y >= 470) this.vidaCont++
             if (this.vidaCont >= 150) this.dead = true
@@ -512,14 +512,14 @@ window.onload = function () {
 
         powerItUp() {
             // drawLine(devil.morty.altura, false)
-            if (devil.centro.x >= this.x && devil.centro.x <= this.x + this.w && this.y >= devil.morty.altura && this.on == false && this.dead == false) {
+            if (devil.centro.x >= this.x && devil.centro.x <= this.x + this.w && this.y >= devil.morty.altura && this.y <= devil.morty.pes && this.on == false && this.dead == false) {
                 devil.nSetas = 2
                 this.on = true
                 this.dead = true
             }
 
             if (player2) {
-                if (rick.centro.x >= this.x && rick.centro.x <= this.x + this.w && this.y >= rick.morty.altura && this.on == false && this.dead == false) {
+                if (rick.centro.x >= this.x && rick.centro.x <= this.x + this.w && this.y >= rick.morty.altura && this.y <= rick.morty.pes && this.on == false && this.dead == false) {
                     rick.nSetas = 2
                     this.on = true
                     this.dead = true
@@ -656,6 +656,12 @@ window.onload = function () {
     let playagain = false
     //O que faz a magia continuar
     // level = 3
+    let scoreDevil = 0
+    let scoreRick = 0
+    let scores = {
+        morty: 0,
+        rick: 0
+    }
     function draw() {
         //Os niveis vão para aqui
 
@@ -684,6 +690,8 @@ window.onload = function () {
             nivelPassado = false
             if (level <= 4) {
                 level++
+                scores.morty += devil.score
+                if (player2) scores.rick += rick.score
             }
             if (playagain == true) level = 1
             playagain = false
@@ -728,18 +736,25 @@ window.onload = function () {
         if (level != 4 && level != 0) {
             vidas()
 
+            let scoreM = 0
+            if (devil.score == 0 || stopGame == true) scoreM = scores.morty
+
+            console.log(stopGame)
+
             //Morty    
             ctx.fillStyle = 'white'
             ctx.font = "20px Arial";
             ctx.fillText(text, 20, 525)
-            ctx.fillText(devil.score, 55, 590)
+            ctx.fillText(devil.score + scoreM, 55, 590)
 
             if (player2) {
                 //rick
+                let scoreR = 0
+                if (rick.score == 0 || stopGame == true) scoreR = scores.rick
                 ctx.fillStyle = 'white'
                 ctx.font = "20px Arial";
                 ctx.fillText(text, 895, 525)
-                ctx.fillText(rick.score, 935, 590)
+                ctx.fillText(rick.score + scores.rick, 935, 590)
             }
         }
 
@@ -775,7 +790,7 @@ window.onload = function () {
 
 
             if (level == 3 && boss.vidas > 0) {
-                boss = new Boss(bighead.width, bighead.height)
+                boss = new Boss(bighead, bighead.width, bighead.height)
                 // if (level == 1) p.y = 0  
                 // window.requestAnimationFrame(draw)
             }
@@ -1075,8 +1090,14 @@ window.onload = function () {
 
     }
 
+    let bighead2 = new Image()
+    bighead2.src = "images/headL.png"
+    let bigh3 = new Image()
+    bigh3.src = "images/head-hitted2.png"
+    let bigh4 = new Image()
+    bigh4.src = "images/head-hitted2toleft.png"
     class Boss {
-        constructor(w, h, l = 1) {
+        constructor(img, w, h, l = 1) {
             this.x = 50
             this.y = 10
             this.width = w * 0.2
@@ -1086,10 +1107,18 @@ window.onload = function () {
             this.number = 0
             this.lado = l //determina o lado para que as bolas vão ser lançadas
             this.vidas = 4 //A partir das duas devia fazer uma cena diferentes
+            this.img = img
         }
 
         show() {
-            ctx.drawImage(bighead, this.x, this.y, this.width, this.height)
+
+            if (this.velx > 0 && this.vidas >= 2) this.img = bighead
+            if (this.velx < 0 && this.vidas >= 2) this.img = bighead2
+
+            if (this.velx > 0 && this.vidas < 2) this.img = bigh3
+            if (this.velx < 0 && this.vidas < 2) this.img = bigh4
+
+            ctx.drawImage(this.img, this.x, this.y, this.width, this.height)
         }
         update() {
             this.x += this.velx
@@ -1160,7 +1189,7 @@ window.onload = function () {
     let p2 = new PowerUp()
 
     function nivel3() {
-        if (boss == null) boss = new Boss(bighead.width, bighead.height)
+        if (boss == null) boss = new Boss(bighead, bighead.width, bighead.height)
         let inicioVidas = 780
         ballBounceFloor = 500
         ctx.fillStyle = 'black'
@@ -1168,11 +1197,11 @@ window.onload = function () {
         ctx.drawImage(background3, 0, 0, background3.width, background3.height, 0, 0, canvas.width, 500)
 
         ctx.fillStyle = 'white'
-        ctx.fillRect(780, 510, 50, 10)
+        ctx.fillRect(780, 510, 80, 15)
         for (let i = 0; i < boss.vidas; i++) {
             ctx.fillStyle = 'green'
-            ctx.fillRect(inicioVidas, 511, 10, 9)
-            inicioVidas += 10
+            ctx.fillRect(inicioVidas, 511, 20, 14)
+            inicioVidas += 20
         }
 
 
@@ -1399,13 +1428,16 @@ window.onload = function () {
 
         if (nomeJog.length == 1) {
             if (nomeJog[0].value != "") {
+                console.log('entrou')
                 nome1 == nomeJog[0].value
                 if (confirmarJogs(nomeJog[0].value) == undefined) guardar = true
             }
-        } else {
+        }
+
+        if (player2) {
             if (nomeJog[0].value != "" && nomeJog[1].value != "") {
-                nomeJog[0].value = nome1
-                nomeJog[1].value = nome2
+                nome1 = nomeJog[0].value
+                nome2 = nomeJog[1].value
                 if (confirmarJogs(nomeJog[0].value) == undefined && confirmarJogs(nomeJog[1].value) == undefined) guardar = true
             }
         }
@@ -1415,27 +1447,26 @@ window.onload = function () {
             for (let i = 0; i < nomeJog.length; i++) {
                 let sc = 0
                 let sc2 = 0
-                if (devil.lives != 0 && i == 0) {
+
+                let nomeJog1 = nomeJog[i].value
+                if (player2) nomeJog1 += " *"
+
+                if (i == 0) {
                     sc = Math.round(getTimePoints(inicioJogo, fimJogo))
-                    console.log('Score adicional de Tempo' + sc)
-                }
-
-                if (rick != null && rick.lives != 0 && i == 1) {
-                    sc2 = Math.round(getTimePoints(inicioJogo, fimJogo))
-                    console.log('Score adicional de Tempo' + sc2)
-
-                    let nomeJog1 = nomeJog[i].value
-                    if (player2) nomeJog1 += ' *'
-                    let jog = new Jogador(nomeJog[i].value, devil.score + sc + devil.lives, fimJogo)
+                    if (sc > 100) sc = 0
+                    console.log('Score adicional de Tempo - ' + sc)
+                    let jog = new Jogador(nomeJog1, scores.morty + sc + devil.lives, fimJogo)
                     console.log(jog)
                     jogadores.push(jog)
                 }
 
-
-                if (player2) { //O asterisco é para se saber quais são os jogadores que jogaram em multiplayer
-                    let jog2 = new Jogador(nomeJog[i].value + ' *', rick.score + sc2 + rick.lives, fimJogo)
-                    console.log(jog2)
-                    jogadores.push(jog2)
+                if (rick != null && i == 1) {
+                    sc2 = Math.round(getTimePoints(inicioJogo, fimJogo))
+                    if (sc2 > 100) sc2 = 0
+                    console.log('Score adicional de Tempo - ' + sc2)
+                    let jog = new Jogador(nomeJog1, scores.rick + sc + devil.lives, fimJogo)
+                    console.log(jog)
+                    jogadores.push(jog)
                 }
 
                 nomeJog[i].value = ""
